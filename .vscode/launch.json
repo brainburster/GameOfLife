@@ -1,0 +1,17 @@
+{
+  "version": "0.2.0",
+  "configurations": [{
+      "type": "chrome",
+      "request": "launch",
+      "name": "Launch Chrome against file",
+      "file": "${workspaceFolder}/GameOfLife.html"
+    },
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Launch Chrome against localhost",
+      "url": "http://localhost/GameOfLife.html",
+      "webRoot": "${workspaceFolder}"
+    }
+  ]
+}
