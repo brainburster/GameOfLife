@@ -52,6 +52,22 @@ class GameOfLife {
       }
     }
     document.getElementById("buttons").appendChild(this.pause_btn);
+    this.random_btn = document.createElement("button");
+    this.random_btn.innerHTML = "随机汤";
+    this.random_btn.onclick = () => {
+      this.model = [];
+      this.model_old = [];
+      for (let index = 0; index < 80; index++) {
+        this.model[index] = [];
+        this.model_old[index] = [];
+        for (let i = 0; i < 60; i++) {
+          let value = Math.random() > 0.3 ? 0 : 1;
+          this.model[index][i] = value;
+          this.model_old[index][i] = value;
+        }
+      }
+    }
+    document.getElementById("buttons").appendChild(this.random_btn);
     this.restart_btn = document.createElement("button");
     this.restart_btn.innerHTML = "重开";
     this.restart_btn.onclick = () => {
