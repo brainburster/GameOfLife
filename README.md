@@ -1,4 +1,4 @@
-# 各种黑历史
+# 黑历史
 中二时期写的康威生命游戏 https://brainburster.github.io/GameOfLife/index.html
 
 以前写的2048 https://brainburster.github.io/GameOfLife/2048.html
