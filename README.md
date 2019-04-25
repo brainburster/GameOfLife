@@ -3,4 +3,4 @@
 
 以前写的2048 https://brainburster.github.io/GameOfLife/2048.html
 
-全景图 https://brainburster.github.io/GameOfLife/overview.html
+全景图(可能要加载很久) https://brainburster.github.io/GameOfLife/overview.html
