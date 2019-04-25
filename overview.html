@@ -1,0 +1,58 @@
+<!doctype html>
+
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>全景图test</title>
+  <style type="text/css">
+    div#canvas-frame {
+      border: 0px solid black;
+      cursor: pointer;
+      width: 100%;
+      height: 600px;
+      background-color: #EEEEEE;
+      margin: 0px;
+    }
+
+    input.btn_change_skybox {
+      background-color: #EEEEEE;
+      color: black;
+      border: 2px solid green;
+      text-align: center;
+      padding: 6px 16px;
+      margin: 0px;
+    }
+
+    div#choice {
+      margin: 10px;
+    }
+  </style>
+  <script src="https://threejs.org/build/three.js"></script>
+  <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+</head>
+
+<body onload="threeStart();">
+  <h1 id="info" style=" text-align:center;">全景图test</h1>
+  <div id="canvas-frame"></div>
+  <!-- <b id="info">这是提示信息</b> -->
+  <!-- <br/> -->
+  <b>请选择地点：</b>
+  <br />
+  <div id="choice">
+    <input class="btn_change_skybox" type="button" value="草地">
+    <input class="btn_change_skybox" type="button" value="A6">
+    <input class="btn_change_skybox" type="button" value="图书馆">
+    <input class="btn_change_skybox" type="button" value="荷花池">
+    <input class="btn_change_skybox" type="button" value="红大门">
+    <input class="btn_change_skybox" type="button" value="湖中小岛">
+    <input class="btn_change_skybox" type="button" value="篮球场">
+    <input class="btn_change_skybox" type="button" value="体育场">
+    <input class="btn_change_skybox" type="button" value="旗杆">
+    <input class="btn_change_skybox" type="button" value="青城山">
+    <input class="btn_change_skybox" type="button" value="青城山2">
+  </div>
+  <script src="js/overview.js"></script>
+</body>
+
+</html>
