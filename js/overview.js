@@ -36,12 +36,10 @@ function initScene() {
 function initObject() {
   var path = 'textures/草地/';
   var sides = [path + '1.jpg', path + '2.jpg', path + '4.jpg', path + '3.jpg', path + '5.jpg', path + '6.jpg'];
-
-  //var textures = THREE.ImageUtils.loadTextureCube(sides);
+  skyShader = THREE.ShaderLib["cube"];
   var loader = new THREE.CubeTextureLoader();
   document.getElementById("info").innerText = "正在加载资源请稍后..";
   loader.load(sides, (textures) => {
-    skyShader = THREE.ShaderLib["cube"];
     skyShader.uniforms["tCube"].value = textures;
     skyMaterial = new THREE.ShaderMaterial({
       fragmentShader: skyShader.fragmentShader,
