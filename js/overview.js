@@ -34,7 +34,7 @@ function initScene() {
 }
 
 function initObject() {
-  var path = 'textures/草地/';
+  var path = 'textures/A6/';
   var sides = [path + '1.jpg', path + '2.jpg', path + '4.jpg', path + '3.jpg', path + '5.jpg', path + '6.jpg'];
   skyShader = THREE.ShaderLib["cube"];
   var loader = new THREE.CubeTextureLoader();
