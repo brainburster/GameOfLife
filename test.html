@@ -1,0 +1,88 @@
+<html>
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+  <meta charset="UTF-8">
+  <title>全景图测试</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+  </style>
+  <script src="https://threejs.org/build/three.js"></script>
+  <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+</head>
+
+<body>
+  <script>
+    let scene, camera, renderer, controls;
+
+    function initScene() {
+      scene = new THREE.Scene();
+    }
+
+    function initCamera() {
+      camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000);
+      camera.position.set(30, 20, 50);
+      camera.lookAt(new THREE.Vector3(0, 0, 0));
+    }
+
+    function initRender() {
+      renderer = new THREE.WebGLRenderer({
+        antialias: true
+      });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+    }
+
+    function initControls() {
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+    }
+
+    function initContent(textureURL) {
+      let texture = new THREE.TextureLoader().load(textureURL);
+      let sphereGeometry = new THREE.SphereGeometry(1000, 50, 50);
+      sphereGeometry.scale(-1, 1, 1);
+      let sphereMaterial = new THREE.MeshBasicMaterial({
+        map: texture
+      });
+      let sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+      scene.add(sphere);
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    function update() {}
+
+    function init() {
+
+      initScene();
+      initCamera();
+      initRender();
+      initControls();
+      initContent(
+        "http://i2.bvimg.com/689305/e179661f27b7b2c2.jpg"
+      );
+      window.addEventListener('resize', onWindowResize, false);
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      renderer.render(scene, camera);
+      update();
+    }
+
+    (function () {
+      init();
+      animate();
+    })();
+  </script>
+</body>
+
+</html>
