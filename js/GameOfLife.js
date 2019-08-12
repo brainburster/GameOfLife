@@ -30,8 +30,18 @@ class GameOfLife {
       DIRECTION_RIGHT_UP: 7,
       DIRECTION_RIGHT_DWON: 8
     }
+
+    this.canvas.onmousemove = (e) => {
+      if (e.buttons !== 1) {
+        return;
+      }
+      console.log(e);
+      let x = Math.floor(e.offsetX / 10);
+      let y = Math.floor(e.offsetY / 10);
+      this.model[x][y] = 1;
+    }
     //鼠标点击事件
-    this.canvas.onclick = (e) => {
+    this.canvas.onmouseup = (e) => {
       let x = Math.floor(e.offsetX / 10);
       let y = Math.floor(e.offsetY / 10);
       if (this.model[x][y]) {
