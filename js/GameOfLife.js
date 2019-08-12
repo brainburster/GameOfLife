@@ -77,7 +77,7 @@ class GameOfLife {
     this.about_btn = document.createElement("button");
     this.about_btn.innerHTML = "什么是生命游戏？";
     this.about_btn.onclick = () => {
-      window.open("https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life");
+      window.open("https://baike.baidu.com/item/生命游戏");
     }
     document.getElementById("buttons").appendChild(this.about_btn);
 
@@ -113,72 +113,63 @@ class GameOfLife {
 
   findNeighbor(x, y, direction) {
     switch (direction) {
-      case this.direction.DIRECTION_lEFT:
-        {
-          if (this.model_old[x - 1] == undefined) {
-            return 0;
-          }
-          return this.model_old[x - 1][y] || 0;
+      case this.direction.DIRECTION_lEFT: {
+        if (this.model_old[x - 1] == undefined) {
+          return 0;
         }
-        break;
-      case this.direction.DIRECTION_RIGHT:
-        {
-          if (this.model_old[x + 1] == undefined) {
-            return 0;
-          }
-          return this.model_old[x + 1][y] || 0;
-        }
-        break;
-      case this.direction.DIRECTION_UP:
-        {
-          return this.model_old[x][y - 1] || 0;
-        }
-        break;
-      case this.direction.DIRECTION_DWON:
-        {
-          return this.model_old[x][y + 1] || 0;
-        }
-        break;
-      case this.direction.DIRECTION_LEFT_UP:
-        {
-          if (this.model_old[x - 1] == undefined) {
-            return 0;
-          }
-          return this.model_old[x - 1][y - 1] || 0;
-        }
-        break;
-      case this.direction.DIRECTION_lEFT_DWON:
-        {
-          if (this.model_old[x - 1] == undefined) {
-            return 0;
-          }
-          return this.model_old[x - 1][y + 1] || 0;
-        }
-        break;
-      case this.direction.DIRECTION_RIGHT_UP:
-        {
-          if (this.model_old[x + 1] == undefined) {
-            return 0;
-          }
-          return this.model_old[x + 1][y - 1] || 0;
-        }
-        break;
-      case this.direction.DIRECTION_RIGHT_DWON:
-        {
-          if (this.model_old[x + 1] == undefined) {
-            return 0;
-          }
-          return this.model_old[x + 1][y + 1] || 0;
-        }
-        break;
-      default:
-        {
-          let sum = 0;
-          for (let i = 1; i < 9; i++) {
-            sum += this.findNeighbor(x, y, i);
-          }
-          return sum;
-        }
+        return this.model_old[x - 1][y] || 0;
+      }
+      break;
+    case this.direction.DIRECTION_RIGHT: {
+      if (this.model_old[x + 1] == undefined) {
+        return 0;
+      }
+      return this.model_old[x + 1][y] || 0;
+    }
+    break;
+    case this.direction.DIRECTION_UP: {
+      return this.model_old[x][y - 1] || 0;
+    }
+    break;
+    case this.direction.DIRECTION_DWON: {
+      return this.model_old[x][y + 1] || 0;
+    }
+    break;
+    case this.direction.DIRECTION_LEFT_UP: {
+      if (this.model_old[x - 1] == undefined) {
+        return 0;
+      }
+      return this.model_old[x - 1][y - 1] || 0;
+    }
+    break;
+    case this.direction.DIRECTION_lEFT_DWON: {
+      if (this.model_old[x - 1] == undefined) {
+        return 0;
+      }
+      return this.model_old[x - 1][y + 1] || 0;
+    }
+    break;
+    case this.direction.DIRECTION_RIGHT_UP: {
+      if (this.model_old[x + 1] == undefined) {
+        return 0;
+      }
+      return this.model_old[x + 1][y - 1] || 0;
+    }
+    break;
+    case this.direction.DIRECTION_RIGHT_DWON: {
+      if (this.model_old[x + 1] == undefined) {
+        return 0;
+      }
+      return this.model_old[x + 1][y + 1] || 0;
+    }
+    break;
+    default: {
+      let sum = 0;
+      for (let i = 1; i < 9; i++) {
+        sum += this.findNeighbor(x, y, i);
+      }
+      return sum;
+    }
     }
   }
 
