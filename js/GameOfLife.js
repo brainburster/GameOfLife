@@ -1,3 +1,57 @@
+class Bitmap {
+  constructor(w, h) {
+    this.w = w;
+    this.h = h;
+    this.rowLength = ((w - 1) >> 5) + 1;
+    this.data = new Array();
+    for (let i = 0; i < this.rowLength; i++) {
+      this.data.push(new Uint32Array(h));
+    }
+  }
+  setData(x, y, v) {
+    if (x < 0 || x >= this.w || y < 0 || y >= this.h) {
+      //throw Error("超出范围");
+      return 0;
+    }
+    const row = (x / 32) >>> 0;
+    x = x % 32;
+    const flag = 1 << x;
+    if (v) {
+      this.data[row][y] |= flag;
+    } else {
+      this.data[row][y] &= ~flag;
+    }
+  }
+  getData(x, y) {
+    if (x < 0 || x >= this.w || y < 0 || y >= this.h) {
+      //throw Error("超出范围");
+      return 0;
+    }
+    const row = (x / 32) >>> 0;
+    x = x % 32;
+    const flag = 1 << x;
+    return (this.data[row][y] & flag) ? 1 : 0;
+  }
+  clear() {
+    this.data.forEach((v) => {
+      v.fill(0);
+    });
+  }
+  equal(bitmap) {
+    if (this.w !== bitmap.w || this.h !== bitmap.h) {
+      return false;
+    }
+    return this.data.every((v, x) => v.every((u, y) => u === bitmap.data[x][y]));
+  }
+  copy() {
+    const bitmap = new Bitmap(this.w, this.h);
+    for (let i = 0; i < this.rowLength; i++) {
+      bitmap.data[i] = new Uint32Array(this.data[i])
+    }
+    return bitmap;
+  }
+}
+
 class GameOfLife {
   constructor() {
     this.canvas = document.getElementById("main_canvas");
@@ -6,29 +60,29 @@ class GameOfLife {
     this.context = this.canvas.getContext("2d");
     this.context.fillStyle = "gray";
     this.context.strokeStyle = "black";
-    this.data = [];
-    this.dataOld = [];
-    for (let i = 0; i < 80; i++) {
-      this.data[i] = [];
-      this.dataOld[i] = [];
-      for (let j = 0; j < 60; j++) {
-        this.data[i][j] = 0;
-        this.dataOld[i][j] = 0;
-      }
-    }
+    this.data = new Bitmap(80, 60);
+    this.dataOld = this.data.copy();
     this.pause = true;
+    console.log(this.data);
     //定义枚举
     this.direction = {
       DIRECTION_ALL: 0,
-      DIRECTION_lEFT: 1,
+      DIRECTION_LEFT: 1,
       DIRECTION_RIGHT: 2,
       DIRECTION_UP: 3,
       DIRECTION_DWON: 4,
       DIRECTION_LEFT_UP: 5,
-      DIRECTION_lEFT_DWON: 6,
+      DIRECTION_LEFT_DWON: 6,
       DIRECTION_RIGHT_UP: 7,
       DIRECTION_RIGHT_DWON: 8
     }
+
+    this.canvas.onclick = (e) => {
+      const x = Math.floor(e.offsetX / 10);
+      const y = Math.floor(e.offsetY / 10);
+      console.log(x, y, this.getCountAdjacency(x, y));
+    }
+
 
     this.canvas.onmousemove = (e) => {
       if (e.buttons !== 1) {
@@ -36,17 +90,17 @@ class GameOfLife {
       }
       const x = Math.floor(e.offsetX / 10);
       const y = Math.floor(e.offsetY / 10);
-      this.data[x][y] = 1;
+      this.data.setData(x, y, 1);
     }
 
     //鼠标点击事件
     this.canvas.onmouseup = (e) => {
       const x = Math.floor(e.offsetX / 10);
       const y = Math.floor(e.offsetY / 10);
-      if (this.data[x][y]) {
-        this.data[x][y] = 0;
+      if (this.data.getData(x, y)) {
+        this.data.setData(x, y, 0);
       } else {
-        this.data[x][y] = 1;
+        this.data.setData(x, y, 1);
       }
     }
 
@@ -59,7 +113,7 @@ class GameOfLife {
       let y = e.targetTouches[0].clientY - this.canvas.offsetTop;
       x = Math.floor(x / 10);
       y = Math.floor(y / 10);
-      this.data[x][y] = 1;
+      this.data.setData(x, y, 1);
       e.preventDefault();
     }
 
@@ -68,10 +122,10 @@ class GameOfLife {
       let y = e.changedTouches[0].clientY - this.canvas.offsetTop;
       x = Math.floor(x / 10);
       y = Math.floor(y / 10);
-      if (this.data[x][y]) {
-        this.data[x][y] = 0;
+      if (this.data.getData(x, y)) {
+        this.data.setData(x, y, 0);
       } else {
-        this.data[x][y] = 1;
+        this.data.setData(x, y, 1);
       }
       e.preventDefault();
     }
@@ -90,15 +144,10 @@ class GameOfLife {
     this.random_btn = document.createElement("button");
     this.random_btn.innerHTML = "随机汤";
     this.random_btn.onclick = () => {
-      this.data = [];
-      this.dataOld = [];
-      for (let i = 0; i < 80; i++) {
-        this.data[i] = [];
-        this.dataOld[i] = [];
-        for (let j = 0; j < 60; j++) {
+      for (let i = 0; i < this.data.w; i++) {
+        for (let j = 0; j < this.data.h; j++) {
           let value = Math.random() > 0.3 ? 0 : 1;
-          this.data[i][j] = value;
-          this.dataOld[i][j] = value;
+          this.data.setData(i, j, value);
         }
       }
     }
@@ -113,9 +162,10 @@ class GameOfLife {
     this.clear_btn = document.createElement("button");
     this.clear_btn.innerHTML = "清屏";
     this.clear_btn.onclick = () => {
-      for (let i = 0; i < 80; i++) {
-        for (let j = 0; j < 60; j++) {
-          this.data[i][j] = 0;
+      for (let i = 0; i < this.data.w; i++) {
+        for (let j = 0; j < this.data.h; j++) {
+          this.data.clear();
+          this.dataOld.clear();
         }
       }
     }
@@ -145,17 +195,13 @@ class GameOfLife {
   setMap(map) {
     for (let i = 0; i < map.length; i++) {
       for (let j = 0; j < map[i].length; j++) {
-        this.data[i][j] = map[i][j];
+        this.data.setData(i, j, map[i][j]);
       }
     }
   }
 
   saveData() {
-    for (let i = 0; i < this.data.length; i++) {
-      for (let j = 0; j < this.data[i].length; j++) {
-        this.dataOld[i][j] = this.data[i][j];
-      }
-    }
+    this.dataOld = this.data.copy();
   }
 
   drawCell(x, y, height) {
@@ -166,66 +212,48 @@ class GameOfLife {
     this.context.strokeRect(x * 10, y * 10, height, height);
   }
 
-  findNeighbor(x, y, direction) {
-    switch (direction) {
-      case this.direction.DIRECTION_lEFT: {
-        if (this.dataOld[x - 1] == undefined) {
-          return 0;
-        }
-        return this.dataOld[x - 1][y] || 0;
-      }
-      break;
-    case this.direction.DIRECTION_RIGHT: {
-      if (this.dataOld[x + 1] == undefined) {
-        return 0;
-      }
-      return this.dataOld[x + 1][y] || 0;
-    }
-    break;
-    case this.direction.DIRECTION_UP: {
-      return this.dataOld[x][y - 1] || 0;
-    }
-    break;
-    case this.direction.DIRECTION_DWON: {
-      return this.dataOld[x][y + 1] || 0;
-    }
-    break;
-    case this.direction.DIRECTION_LEFT_UP: {
-      if (this.dataOld[x - 1] == undefined) {
-        return 0;
-      }
-      return this.dataOld[x - 1][y - 1] || 0;
-    }
-    break;
-    case this.direction.DIRECTION_lEFT_DWON: {
-      if (this.dataOld[x - 1] == undefined) {
-        return 0;
-      }
-      return this.dataOld[x - 1][y + 1] || 0;
-    }
-    break;
-    case this.direction.DIRECTION_RIGHT_UP: {
-      if (this.dataOld[x + 1] == undefined) {
-        return 0;
-      }
-      return this.dataOld[x + 1][y - 1] || 0;
-    }
-    break;
-    case this.direction.DIRECTION_RIGHT_DWON: {
-      if (this.dataOld[x + 1] == undefined) {
-        return 0;
-      }
-      return this.dataOld[x + 1][y + 1] || 0;
-    }
-    break;
-    default: {
+  getCountAdjacency(x, y, direction = 0) {
+    if (direction === this.direction.DIRECTION_ALL) {
       let sum = 0;
       for (let i = 1; i < 9; i++) {
-        sum += this.findNeighbor(x, y, i);
+        sum += this.getCountAdjacency(x, y, i) || 0;
       }
       return sum;
     }
+
+    switch (direction) {
+      case this.direction.DIRECTION_LEFT:
+        x -= 1;
+        break;
+      case this.direction.DIRECTION_RIGHT:
+        x += 1;
+        break;
+      case this.direction.DIRECTION_UP:
+        y -= 1;
+        break;
+      case this.direction.DIRECTION_DWON:
+        y += 1;
+        break;
+      case this.direction.DIRECTION_LEFT_UP:
+        x -= 1;
+        y -= 1;
+        break;
+      case this.direction.DIRECTION_LEFT_DWON:
+        x -= 1;
+        y += 1;
+        break;
+      case this.direction.DIRECTION_RIGHT_UP:
+        x += 1;
+        y -= 1;
+        break;
+      case this.direction.DIRECTION_RIGHT_DWON:
+        x += 1;
+        y += 1;
+        break;
+      default:
+        break;
     }
+    return this.dataOld.getData(x, y);
   }
 
   logic() {
@@ -233,14 +261,16 @@ class GameOfLife {
       return;
     }
 
-    this.saveData(); //dataOld = data
-    for (let i = 0; i < this.data.length; i++) {
-      for (let j = 0; j < this.data[i].length; j++) {
-        let temp = this.findNeighbor(i, j);
+    this.saveData();
+    for (let i = 0; i < this.data.w; i++) {
+      for (let j = 0; j < this.data.h; j++) {
+        let temp = this.getCountAdjacency(i, j);
         if (temp == 3) {
-          this.data[i][j] = 1;
+          //出生
+          this.data.setData(i, j, 1);
         } else if (temp != 2) {
-          this.data[i][j] = 0;
+          //死亡
+          this.data.setData(i, j, 0);
         } else {
           //不变
         }
@@ -250,9 +280,9 @@ class GameOfLife {
 
   draw() {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    for (let i = 0; i < this.data.length; i++) {
-      for (let j = 0; j < this.data[i].length; j++) {
-        if (this.data[i][j] != 0) {
+    for (let i = 0; i < this.data.w; i++) {
+      for (let j = 0; j < this.data.h; j++) {
+        if (this.data.getData(i, j) !== 0) {
           this.drawCell(i, j);
         }
       }
