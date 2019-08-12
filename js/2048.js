@@ -1,6 +1,6 @@
 var game2048 = function () {
   let o = {};
-  //代种子的随机数
+  //带种子的随机数
   Math.seed = 5;
   Math.seededRandom = function (min, max) {
     max = max || 1;
