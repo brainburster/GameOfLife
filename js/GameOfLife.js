@@ -9,12 +9,12 @@ class GameOfLife {
     this.context.strokeStyle = "black";
     this.model = [];
     this.model_old = [];
-    for (let index = 0; index < 80; index++) {
-      this.model[index] = [];
-      this.model_old[index] = [];
-      for (let i = 0; i < 60; i++) {
-        this.model[index][i] = 0;
-        this.model_old[index][i] = 0;
+    for (let i = 0; i < 80; i++) {
+      this.model[i] = [];
+      this.model_old[i] = [];
+      for (let j = 0; j < 60; j++) {
+        this.model[i][j] = 0;
+        this.model_old[i][j] = 0;
       }
     }
     this.pause = true;
@@ -67,13 +67,13 @@ class GameOfLife {
     this.random_btn.onclick = () => {
       this.model = [];
       this.model_old = [];
-      for (let index = 0; index < 80; index++) {
-        this.model[index] = [];
-        this.model_old[index] = [];
-        for (let i = 0; i < 60; i++) {
+      for (let i = 0; i < 80; i++) {
+        this.model[i] = [];
+        this.model_old[i] = [];
+        for (let j = 0; j < 60; j++) {
           let value = Math.random() > 0.3 ? 0 : 1;
-          this.model[index][i] = value;
-          this.model_old[index][i] = value;
+          this.model[i][j] = value;
+          this.model_old[i][j] = value;
         }
       }
     }
@@ -88,9 +88,10 @@ class GameOfLife {
     this.clear_btn = document.createElement("button");
     this.clear_btn.innerHTML = "清屏";
     this.clear_btn.onclick = () => {
-      this.model = [];
-      for (let index = 0; index < 80; index++) {
-        this.model[index] = [];
+      for (let i = 0; i < 80; i++) {
+        for (let j = 0; j < 60; j++) {
+          this.model[i][j] = 0;
+        }
       }
     }
     document.getElementById("buttons").appendChild(this.clear_btn);
