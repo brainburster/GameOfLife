@@ -120,7 +120,7 @@ class GameOfLife {
   setMap(map) {
     for (let i = 0; i < map.length; i++) {
       for (let j = 0; j < map[i].length; j++) {
-        this.model[j][i] = map[i][j];
+        this.model[i][j] = map[i][j];
       }
     }
   }
