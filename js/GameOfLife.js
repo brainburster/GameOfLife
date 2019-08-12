@@ -71,9 +71,17 @@ class GameOfLife {
     this.restart_btn = document.createElement("button");
     this.restart_btn.innerHTML = "重开";
     this.restart_btn.onclick = () => {
-      window.location.href = window.location.href;
+      window.location.reload();
     }
     document.getElementById("buttons").appendChild(this.restart_btn);
+
+    this.clear_btn = document.createElement("button");
+    this.clear_btn.innerHTML = "清屏";
+    this.clear_btn.onclick = () => {
+      this.model = [];
+    }
+    document.getElementById("buttons").appendChild(this.clear_btn);
+
     this.about_btn = document.createElement("button");
     this.about_btn.innerHTML = "什么是生命游戏？";
     this.about_btn.onclick = () => {
@@ -81,7 +89,15 @@ class GameOfLife {
     }
     document.getElementById("buttons").appendChild(this.about_btn);
 
+    this.speedRange = document.getElementById("speed");
+    this.speedRange.oninput = () => {
+      this.speed = 64 - Number(this.speedRange.value);
+    }
+    this.speed = 64 - Number(this.speedRange.value);
+
     this.canvas.style.cursor = "pointer";
+    this.random_btn.style.cursor = "pointer";
+    this.clear_btn.style.cursor = "pointer";
     this.about_btn.style.cursor = "help";
     this.restart_btn.style.cursor = "pointer";
     this.pause_btn.style.cursor = "pointer";
@@ -207,12 +223,23 @@ class GameOfLife {
   }
 
   run() {
-    //每帧调用
-    setInterval(() => {
-      //logic
-      this.logic();
-      //draw
+    let previous = (new Date()).getTime();
+    let lag = 0.0;
+
+    const gameloop = () => {
+      const current = (new Date()).getTime();
+      const elapsed = current - previous;
+      previous = current;
+      lag += elapsed;
+
+      while (lag >= this.speed) {
+        this.logic();
+        lag -= this.speed;
+      }
       this.draw();
-    }, 1000 / 30);
+      requestAnimationFrame(gameloop);
+    };
+
+    requestAnimationFrame(gameloop);
   }
 }
