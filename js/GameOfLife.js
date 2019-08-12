@@ -13,8 +13,8 @@ class Bitmap {
       //throw Error("超出范围");
       return 0;
     }
-    const row = (x / 32) >>> 0;
-    x = x % 32;
+    const row = x >>> 5;
+    x &= 0b11111;
     const flag = 1 << x;
     if (v) {
       this.data[row][y] |= flag;
@@ -27,7 +27,7 @@ class Bitmap {
       //throw Error("超出范围");
       return 0;
     }
-    const row = (x / 32) >>> 0;
+    const row = x >>> 5;
     x = x % 32;
     const flag = 1 << x;
     return (this.data[row][y] & flag) ? 1 : 0;
@@ -77,12 +77,11 @@ class GameOfLife {
       DIRECTION_RIGHT_DWON: 8
     }
 
-    this.canvas.onclick = (e) => {
-      const x = Math.floor(e.offsetX / 10);
-      const y = Math.floor(e.offsetY / 10);
-      console.log(x, y, this.getCountAdjacency(x, y));
-    }
-
+    // this.canvas.onclick = (e) => {
+    //   const x = Math.floor(e.offsetX / 10);
+    //   const y = Math.floor(e.offsetY / 10);
+    //   console.log(x, y, this.getCountAdjacency(x, y));
+    // }
 
     this.canvas.onmousemove = (e) => {
       if (e.buttons !== 1) {
