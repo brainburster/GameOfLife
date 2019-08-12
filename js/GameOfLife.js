@@ -34,19 +34,46 @@ class GameOfLife {
       if (e.buttons !== 1) {
         return;
       }
-      let x = Math.floor(e.offsetX / 10);
-      let y = Math.floor(e.offsetY / 10);
+      const x = Math.floor(e.offsetX / 10);
+      const y = Math.floor(e.offsetY / 10);
       this.data[x][y] = 1;
     }
+
     //鼠标点击事件
     this.canvas.onmouseup = (e) => {
-      let x = Math.floor(e.offsetX / 10);
-      let y = Math.floor(e.offsetY / 10);
+      const x = Math.floor(e.offsetX / 10);
+      const y = Math.floor(e.offsetY / 10);
       if (this.data[x][y]) {
         this.data[x][y] = 0;
       } else {
         this.data[x][y] = 1;
       }
+    }
+
+    this.canvas.ontouchstart = (e) => {
+      e.preventDefault();
+    }
+
+    this.canvas.ontouchmove = (e) => {
+      let x = e.targetTouches[0].clientX - this.canvas.offsetLeft;
+      let y = e.targetTouches[0].clientY - this.canvas.offsetTop;
+      x = Math.floor(x / 10);
+      y = Math.floor(y / 10);
+      this.data[x][y] = 1;
+      e.preventDefault();
+    }
+
+    this.canvas.ontouchend = (e) => {
+      let x = e.changedTouches[0].clientX - this.canvas.offsetLeft;
+      let y = e.changedTouches[0].clientY - this.canvas.offsetTop;
+      x = Math.floor(x / 10);
+      y = Math.floor(y / 10);
+      if (this.data[x][y]) {
+        this.data[x][y] = 0;
+      } else {
+        this.data[x][y] = 1;
+      }
+      e.preventDefault();
     }
 
     this.pause_btn = document.createElement("button");
