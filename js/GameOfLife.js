@@ -1,20 +1,19 @@
 class GameOfLife {
   constructor() {
-    this.time = 0;
     this.canvas = document.getElementById("main_canvas");
     this.canvas.width = 800;
     this.canvas.height = 600;
     this.context = this.canvas.getContext("2d");
     this.context.fillStyle = "gray";
     this.context.strokeStyle = "black";
-    this.model = [];
-    this.model_old = [];
+    this.data = [];
+    this.dataOld = [];
     for (let i = 0; i < 80; i++) {
-      this.model[i] = [];
-      this.model_old[i] = [];
+      this.data[i] = [];
+      this.dataOld[i] = [];
       for (let j = 0; j < 60; j++) {
-        this.model[i][j] = 0;
-        this.model_old[i][j] = 0;
+        this.data[i][j] = 0;
+        this.dataOld[i][j] = 0;
       }
     }
     this.pause = true;
@@ -38,16 +37,16 @@ class GameOfLife {
       console.log(e);
       let x = Math.floor(e.offsetX / 10);
       let y = Math.floor(e.offsetY / 10);
-      this.model[x][y] = 1;
+      this.data[x][y] = 1;
     }
     //鼠标点击事件
     this.canvas.onmouseup = (e) => {
       let x = Math.floor(e.offsetX / 10);
       let y = Math.floor(e.offsetY / 10);
-      if (this.model[x][y]) {
-        this.model[x][y] = 0;
+      if (this.data[x][y]) {
+        this.data[x][y] = 0;
       } else {
-        this.model[x][y] = 1;
+        this.data[x][y] = 1;
       }
     }
 
@@ -65,15 +64,15 @@ class GameOfLife {
     this.random_btn = document.createElement("button");
     this.random_btn.innerHTML = "随机汤";
     this.random_btn.onclick = () => {
-      this.model = [];
-      this.model_old = [];
+      this.data = [];
+      this.dataOld = [];
       for (let i = 0; i < 80; i++) {
-        this.model[i] = [];
-        this.model_old[i] = [];
+        this.data[i] = [];
+        this.dataOld[i] = [];
         for (let j = 0; j < 60; j++) {
           let value = Math.random() > 0.3 ? 0 : 1;
-          this.model[i][j] = value;
-          this.model_old[i][j] = value;
+          this.data[i][j] = value;
+          this.dataOld[i][j] = value;
         }
       }
     }
@@ -90,7 +89,7 @@ class GameOfLife {
     this.clear_btn.onclick = () => {
       for (let i = 0; i < 80; i++) {
         for (let j = 0; j < 60; j++) {
-          this.model[i][j] = 0;
+          this.data[i][j] = 0;
         }
       }
     }
@@ -105,9 +104,9 @@ class GameOfLife {
 
     this.speedRange = document.getElementById("speed");
     this.speedRange.oninput = () => {
-      this.speed = 64 - Number(this.speedRange.value);
+      this.speed = 200 - Number(this.speedRange.value);
     }
-    this.speed = 64 - Number(this.speedRange.value);
+    this.speed = 200 - Number(this.speedRange.value);
 
     this.canvas.style.cursor = "pointer";
     this.random_btn.style.cursor = "pointer";
@@ -120,15 +119,15 @@ class GameOfLife {
   setMap(map) {
     for (let i = 0; i < map.length; i++) {
       for (let j = 0; j < map[i].length; j++) {
-        this.model[i][j] = map[i][j];
+        this.data[i][j] = map[i][j];
       }
     }
   }
 
-  saveModel() {
-    for (let i = 0; i < this.model.length; i++) {
-      for (let j = 0; j < this.model[i].length; j++) {
-        this.model_old[i][j] = this.model[i][j];
+  saveData() {
+    for (let i = 0; i < this.data.length; i++) {
+      for (let j = 0; j < this.data[i].length; j++) {
+        this.dataOld[i][j] = this.data[i][j];
       }
     }
   }
@@ -144,53 +143,53 @@ class GameOfLife {
   findNeighbor(x, y, direction) {
     switch (direction) {
       case this.direction.DIRECTION_lEFT: {
-        if (this.model_old[x - 1] == undefined) {
+        if (this.dataOld[x - 1] == undefined) {
           return 0;
         }
-        return this.model_old[x - 1][y] || 0;
+        return this.dataOld[x - 1][y] || 0;
       }
       break;
     case this.direction.DIRECTION_RIGHT: {
-      if (this.model_old[x + 1] == undefined) {
+      if (this.dataOld[x + 1] == undefined) {
         return 0;
       }
-      return this.model_old[x + 1][y] || 0;
+      return this.dataOld[x + 1][y] || 0;
     }
     break;
     case this.direction.DIRECTION_UP: {
-      return this.model_old[x][y - 1] || 0;
+      return this.dataOld[x][y - 1] || 0;
     }
     break;
     case this.direction.DIRECTION_DWON: {
-      return this.model_old[x][y + 1] || 0;
+      return this.dataOld[x][y + 1] || 0;
     }
     break;
     case this.direction.DIRECTION_LEFT_UP: {
-      if (this.model_old[x - 1] == undefined) {
+      if (this.dataOld[x - 1] == undefined) {
         return 0;
       }
-      return this.model_old[x - 1][y - 1] || 0;
+      return this.dataOld[x - 1][y - 1] || 0;
     }
     break;
     case this.direction.DIRECTION_lEFT_DWON: {
-      if (this.model_old[x - 1] == undefined) {
+      if (this.dataOld[x - 1] == undefined) {
         return 0;
       }
-      return this.model_old[x - 1][y + 1] || 0;
+      return this.dataOld[x - 1][y + 1] || 0;
     }
     break;
     case this.direction.DIRECTION_RIGHT_UP: {
-      if (this.model_old[x + 1] == undefined) {
+      if (this.dataOld[x + 1] == undefined) {
         return 0;
       }
-      return this.model_old[x + 1][y - 1] || 0;
+      return this.dataOld[x + 1][y - 1] || 0;
     }
     break;
     case this.direction.DIRECTION_RIGHT_DWON: {
-      if (this.model_old[x + 1] == undefined) {
+      if (this.dataOld[x + 1] == undefined) {
         return 0;
       }
-      return this.model_old[x + 1][y + 1] || 0;
+      return this.dataOld[x + 1][y + 1] || 0;
     }
     break;
     default: {
@@ -207,17 +206,15 @@ class GameOfLife {
     if (this.pause) {
       return;
     }
-    if (this.time++ % 5 != 1) {
-      return;
-    }
-    this.saveModel(); //model_old = model
-    for (let i = 0; i < this.model.length; i++) {
-      for (let j = 0; j < this.model[i].length; j++) {
+
+    this.saveData(); //dataOld = data
+    for (let i = 0; i < this.data.length; i++) {
+      for (let j = 0; j < this.data[i].length; j++) {
         let temp = this.findNeighbor(i, j);
         if (temp == 3) {
-          this.model[i][j] = 1;
+          this.data[i][j] = 1;
         } else if (temp != 2) {
-          this.model[i][j] = 0;
+          this.data[i][j] = 0;
         } else {
           //不变
         }
@@ -227,9 +224,9 @@ class GameOfLife {
 
   draw() {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    for (let i = 0; i < this.model.length; i++) {
-      for (let j = 0; j < this.model[i].length; j++) {
-        if (this.model[i][j] != 0) {
+    for (let i = 0; i < this.data.length; i++) {
+      for (let j = 0; j < this.data[i].length; j++) {
+        if (this.data[i][j] != 0) {
           this.drawCell(i, j);
         }
       }
@@ -254,6 +251,6 @@ class GameOfLife {
       requestAnimationFrame(gameloop);
     };
 
-    requestAnimationFrame(gameloop);
+    gameloop();
   }
 }
