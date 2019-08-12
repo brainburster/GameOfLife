@@ -89,6 +89,9 @@ class GameOfLife {
     this.clear_btn.innerHTML = "清屏";
     this.clear_btn.onclick = () => {
       this.model = [];
+      for (let index = 0; index < 80; index++) {
+        this.model[index] = [];
+      }
     }
     document.getElementById("buttons").appendChild(this.clear_btn);
 
