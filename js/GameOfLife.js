@@ -34,7 +34,6 @@ class GameOfLife {
       if (e.buttons !== 1) {
         return;
       }
-      console.log(e);
       let x = Math.floor(e.offsetX / 10);
       let y = Math.floor(e.offsetY / 10);
       this.data[x][y] = 1;
