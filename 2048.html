@@ -1,35 +1,42 @@
 <!doctype html>
 
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>2048</title>
-        <meta name="Keywords" context="2048_js_canvas">
-        <meta name="Description" context="2048_js_canvas">
-        <style>
-                *{margin : 0;}
-                canvas{
-                    background: white;
-                    margin:40px auto;
-                    display: block;
-                    border:1px solid black;
-                    box-shadow: 0px 0px 10px black;
-                }
-        </style>
-        <script src="js/2048.js"></script>
-    </head>
-    <body>
-        <h1 id="id_title" style="text-align:center;margin:30px auto;">2048</h1>
-        <canvas id="main_canvas" height="400" width="400"></canvas>
-        <div style="text-align:center;margin:60px auto;">
-            <p id="id_score">分数：4</p>
-            <p id="id_time">回合数：1</p>
-            <br/>
-            <button id="id_back">上一步</button>
-            <button id="id_next">下一步</button>                
-        </div>
-        <script>
-            game2048();
-        </script>
-    </body>
+
+<head>
+  <meta charset="UTF-8">
+  <title>2048</title>
+  <meta name="Keywords" context="2048_js_canvas">
+  <meta name="Description" context="2048_js_canvas">
+  <style>
+    * {
+      margin: 0;
+    }
+
+    canvas {
+      background: white;
+      margin: 40px auto;
+      display: block;
+      border: 1px solid black;
+      box-shadow: 0px 0px 10px black;
+    }
+  </style>
+  <script src="js/2048.js"></script>
+  <link rel="shortcut icon" href="icon.png" type="image/x-icon">
+</head>
+
+<body>
+  <h1 id="id_title" style="text-align:center;margin:30px auto;">2048</h1>
+  <canvas id="main_canvas" height="400" width="400"></canvas>
+  <div style="text-align:center;margin:60px auto;">
+    <p id="id_score">分数：4</p>
+    <p id="id_time">回合数：1</p>
+    <br />
+    <button id="id_back">上一步</button>
+    <button id="id_next">下一步</button>
+  </div>
+  <script>
+    game2048();
+  </script>
+</body>
+
 </html>
