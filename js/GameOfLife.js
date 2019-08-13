@@ -52,6 +52,10 @@ class Bitmap {
   }
 }
 
+//热寂效果
+const colors = ["#666", "#777", "#877", "#977", "#A77", "#B77", "#C88", "#D88", "#E99", "#F99"];
+colors.reverse();
+
 class GameOfLife {
   constructor() {
     this.canvas = document.getElementById("main_canvas");
@@ -62,8 +66,10 @@ class GameOfLife {
     this.context.strokeStyle = "black";
     this.data = new Bitmap(80, 60);
     this.dataOld = this.data.copy();
+    this.history = [];
+    this.history.push(this.dataOld);
     this.pause = true;
-    console.log(this.data);
+    //console.log(this.data);
     //定义枚举
     this.direction = {
       DIRECTION_ALL: 0,
@@ -165,6 +171,7 @@ class GameOfLife {
         for (let j = 0; j < this.data.h; j++) {
           this.data.clear();
           this.dataOld.clear();
+          this.history.length = 0;
         }
       }
     }
@@ -183,6 +190,8 @@ class GameOfLife {
     }
     this.speed = 200 - Number(this.speedRange.value);
 
+    this.bHeatDeath = document.getElementById("heat-death");
+
     this.canvas.style.cursor = "pointer";
     this.random_btn.style.cursor = "pointer";
     this.clear_btn.style.cursor = "pointer";
@@ -197,16 +206,26 @@ class GameOfLife {
         this.data.setData(i, j, map[i][j]);
       }
     }
+    //创建虚假的历史
+    this.history.push(this.data);
+    this.history.push(this.data);
+    this.history.push(this.data);
+    this.history.push(this.data);
+    this.history.push(this.data);
+    this.history.push(this.data);
+    this.history.push(this.data);
   }
 
   saveData() {
     this.dataOld = this.data.copy();
+    this.history.push(this.dataOld);
+    if (this.history.length > 8) {
+      this.history.splice(0, 1);
+    }
   }
 
-  drawCell(x, y, height) {
-    x = x || 0;
-    y = y || 0;
-    height = height || 10;
+  drawCell(x, y, color = "gray", height = 10) {
+    this.context.fillStyle = color;
     this.context.fillRect(x * 10, y * 10, height, height);
     this.context.strokeRect(x * 10, y * 10, height, height);
   }
@@ -281,8 +300,13 @@ class GameOfLife {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     for (let i = 0; i < this.data.w; i++) {
       for (let j = 0; j < this.data.h; j++) {
-        if (this.data.getData(i, j) !== 0) {
-          this.drawCell(i, j);
+        if (this.data.getData(i, j)) {
+          if (this.bHeatDeath.checked) {
+            const count = this.history.reduce((a, b) => a + b.getData(i, j), 0);
+            this.drawCell(i, j, colors[count]);
+          } else {
+            this.drawCell(i, j, "gray");
+          }
         }
       }
     }
