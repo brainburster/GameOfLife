@@ -115,30 +115,30 @@ class GameOfLife {
     }
 
 
-    this.pause_btn = document.createElement("button");
-    this.pause_btn.innerHTML = "点击，以开始";
-    this.pause_btn.onclick = () => {
+    this.pauseBtn = document.createElement("button");
+    this.pauseBtn.innerHTML = "点击，以开始";
+    this.pauseBtn.onclick = () => {
       this.pause = !this.pause;
       if (this.pause) {
-        this.pause_btn.innerHTML = "点击，以开始";
+        this.pauseBtn.innerHTML = "点击，以开始";
       } else {
-        this.pause_btn.innerHTML = "暂停，以绘制地图";
+        this.pauseBtn.innerHTML = "暂停，以绘制地图";
       }
     }
-    document.getElementById("buttons").appendChild(this.pause_btn);
+    document.getElementById("buttons").appendChild(this.pauseBtn);
 
     const pencilOrRubber = ["橡皮", "铅笔"];
-    this.pen_btn = document.createElement("button");
-    this.pen_btn.innerHTML = pencilOrRubber[penColor];
-    this.pen_btn.onclick = () => {
+    this.penBtn = document.createElement("button");
+    this.penBtn.innerHTML = pencilOrRubber[penColor];
+    this.penBtn.onclick = () => {
       penColor = penColor ? 0 : 1;
-      this.pen_btn.innerHTML = pencilOrRubber[penColor];
+      this.penBtn.innerHTML = pencilOrRubber[penColor];
     }
-    document.getElementById("buttons").appendChild(this.pen_btn);
+    document.getElementById("buttons").appendChild(this.penBtn);
 
-    this.random_btn = document.createElement("button");
-    this.random_btn.innerHTML = "随机汤";
-    this.random_btn.onclick = () => {
+    this.randomBtn = document.createElement("button");
+    this.randomBtn.innerHTML = "随机汤";
+    this.randomBtn.onclick = () => {
       for (let i = 0; i < this.data.w; i++) {
         for (let j = 0; j < this.data.h; j++) {
           let value = Math.random() > 0.3 ? 0 : 1;
@@ -146,29 +146,29 @@ class GameOfLife {
         }
       }
     }
-    document.getElementById("buttons").appendChild(this.random_btn);
-    this.restart_btn = document.createElement("button");
-    this.restart_btn.innerHTML = "重开";
-    this.restart_btn.onclick = () => {
+    document.getElementById("buttons").appendChild(this.randomBtn);
+    this.restartBtn = document.createElement("button");
+    this.restartBtn.innerHTML = "重开";
+    this.restartBtn.onclick = () => {
       window.location.reload();
     }
-    document.getElementById("buttons").appendChild(this.restart_btn);
+    document.getElementById("buttons").appendChild(this.restartBtn);
 
-    this.clear_btn = document.createElement("button");
-    this.clear_btn.innerHTML = "清屏";
-    this.clear_btn.onclick = () => {
+    this.clearBtn = document.createElement("button");
+    this.clearBtn.innerHTML = "清屏";
+    this.clearBtn.onclick = () => {
       this.data.clear();
       this.dataOld.clear();
       this.history.length = 0;
     }
-    document.getElementById("buttons").appendChild(this.clear_btn);
+    document.getElementById("buttons").appendChild(this.clearBtn);
 
-    this.about_btn = document.createElement("button");
-    this.about_btn.innerHTML = "什么是生命游戏？";
-    this.about_btn.onclick = () => {
+    this.aboutBtn = document.createElement("button");
+    this.aboutBtn.innerHTML = "什么是生命游戏？";
+    this.aboutBtn.onclick = () => {
       window.open("https://baike.baidu.com/item/生命游戏");
     }
-    document.getElementById("buttons").appendChild(this.about_btn);
+    document.getElementById("buttons").appendChild(this.aboutBtn);
 
     this.speedRange = document.getElementById("speed");
     this.speedRange.oninput = () => {
@@ -179,11 +179,12 @@ class GameOfLife {
     this.bHeatDeath = document.getElementById("heat-death");
 
     this.canvas.style.cursor = "pointer";
-    this.random_btn.style.cursor = "pointer";
-    this.clear_btn.style.cursor = "pointer";
-    this.about_btn.style.cursor = "help";
-    this.restart_btn.style.cursor = "pointer";
-    this.pause_btn.style.cursor = "pointer";
+    this.penBtn.style.cursor = "pointer";
+    this.randomBtn.style.cursor = "pointer";
+    this.clearBtn.style.cursor = "pointer";
+    this.aboutBtn.style.cursor = "help";
+    this.restartBtn.style.cursor = "pointer";
+    this.pauseBtn.style.cursor = "pointer";
   }
 
   setMap(map) {
