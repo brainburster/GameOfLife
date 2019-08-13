@@ -17,7 +17,6 @@ var game2048 = function () {
   o.context.fillStyle = "gray";
   o.context.strokeStyle = "black";
 
-  //对象的属性+闭包，可能写的有点乱
   let offset_x;
   let offset_y;
   let b_mouse_down = false;
