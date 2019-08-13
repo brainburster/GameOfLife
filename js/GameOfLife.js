@@ -56,6 +56,10 @@ class Bitmap {
 const colors = ["#666", "#777", "#877", "#977", "#A77", "#B77", "#C88", "#D88", "#E99", "#F99"];
 colors.reverse();
 
+const cellSizes = [20, 10, 5, 3, 2, 1];
+const bitMapWs = [40, 80, 160, 266, 400, 800];
+const bitMapHs = [30, 60, 120, 200, 300, 600];
+
 class GameOfLife {
   constructor() {
     this.canvas = document.getElementById("main_canvas");
@@ -64,7 +68,14 @@ class GameOfLife {
     this.context = this.canvas.getContext("2d");
     this.context.fillStyle = "gray";
     this.context.strokeStyle = "black";
-    this.data = new Bitmap(80, 60);
+
+    const mapSizeRange = document.getElementById("map-size");
+    mapSizeRange.oninput = () => {
+      this.resize(mapSizeRange.valueAsNumber);
+    }
+
+    this.cellSize = cellSizes[mapSizeRange.valueAsNumber];
+    this.data = new Bitmap(bitMapWs[mapSizeRange.valueAsNumber], bitMapHs[mapSizeRange.valueAsNumber]);
     this.dataOld = this.data.copy();
     this.history = [];
     this.history.push(this.dataOld);
@@ -83,9 +94,9 @@ class GameOfLife {
       DIRECTION_RIGHT_DWON: 8
     }
 
-    let brushSizeRange = document.getElementById("brush-size");
+    const brushSizeRange = document.getElementById("brush-size");
     const drawPen = (x, y) => {
-      const r = brushSizeRange.value >>> 1;
+      const r = brushSizeRange.valueAsNumber >>> 1;
       for (let i = -r; i <= r; i++) {
         for (let j = -r; j <= r; j++) {
           this.data.setData(x + i, y + j, penColor);
@@ -94,8 +105,8 @@ class GameOfLife {
     }
 
     this.canvas.onmousedown = (e) => {
-      const x = Math.floor(e.offsetX / 10);
-      const y = Math.floor(e.offsetY / 10);
+      const x = Math.floor(e.offsetX / this.cellSize);
+      const y = Math.floor(e.offsetY / this.cellSize);
       drawPen(x, y);
     }
 
@@ -103,8 +114,8 @@ class GameOfLife {
       if (e.buttons !== 1) {
         return;
       }
-      const x = Math.floor(e.offsetX / 10);
-      const y = Math.floor(e.offsetY / 10);
+      const x = Math.floor(e.offsetX / this.cellSize);
+      const y = Math.floor(e.offsetY / this.cellSize);
       drawPen(x, y);
     }
 
@@ -117,16 +128,16 @@ class GameOfLife {
         const touch = e.targetTouches[i];
         let x = touch.clientX - this.canvas.offsetLeft;
         let y = touch.clientY - this.canvas.offsetTop;
-        x = Math.floor(x / 10);
-        y = Math.floor(y / 10);
+        x = Math.floor(x / this.cellSize);
+        y = Math.floor(y / this.cellSize);
         drawPen(x, y);
       }
       e.preventDefault();
     }
 
-    this.debugBtn = document.createElement("button");
-    this.debugBtn.innerHTML = "单步调试";
-    this.debugBtn.onclick = () => {
+    const debugBtn = document.createElement("button");
+    debugBtn.innerHTML = "单步调试";
+    debugBtn.onclick = () => {
       if (!this.pause) {
         return;
       }
@@ -135,77 +146,88 @@ class GameOfLife {
       this.pause = true;
       this.draw();
     }
-    document.getElementById("buttons").appendChild(this.debugBtn);
+    document.getElementById("buttons").appendChild(debugBtn);
 
-    this.pauseBtn = document.createElement("button");
-    this.pauseBtn.innerHTML = "点击，以开始";
-    this.pauseBtn.onclick = () => {
+    const pauseBtn = document.createElement("button");
+    pauseBtn.innerHTML = "点击，以开始";
+    pauseBtn.onclick = () => {
       this.pause = !this.pause;
       if (this.pause) {
-        this.pauseBtn.innerHTML = "点击，以开始";
+        pauseBtn.innerHTML = "点击，以开始";
       } else {
-        this.pauseBtn.innerHTML = "暂停，以绘制地图";
+        pauseBtn.innerHTML = "暂停，以绘制地图";
       }
     }
-    document.getElementById("buttons").appendChild(this.pauseBtn);
+    document.getElementById("buttons").appendChild(pauseBtn);
 
     const pencilOrRubber = ["橡皮", "铅笔"];
-    this.penBtn = document.getElementById("pen");
-    this.penBtn.value = pencilOrRubber[penColor];
-    this.penBtn.onclick = () => {
+    const penBtn = document.getElementById("pen");
+    penBtn.value = pencilOrRubber[penColor];
+    penBtn.onclick = () => {
       penColor = penColor ? 0 : 1;
-      this.penBtn.value = pencilOrRubber[penColor];
+      penBtn.value = pencilOrRubber[penColor];
     }
 
-    this.randomBtn = document.createElement("button");
-    this.randomBtn.innerHTML = "随机汤";
-    this.randomBtn.onclick = () => {
+    const randomBtn = document.createElement("button");
+    randomBtn.innerHTML = "随机汤";
+    randomBtn.onclick = () => {
       for (let i = 0; i < this.data.w; i++) {
         for (let j = 0; j < this.data.h; j++) {
           let value = Math.random() > 0.3 ? 0 : 1;
           this.data.setData(i, j, value);
+          this.dataOld = this.data.copy();
+          this.history.length = 0;
         }
       }
     }
-    document.getElementById("buttons").appendChild(this.randomBtn);
-    this.restartBtn = document.createElement("button");
-    this.restartBtn.innerHTML = "重开";
-    this.restartBtn.onclick = () => {
+    document.getElementById("buttons").appendChild(randomBtn);
+    const restartBtn = document.createElement("button");
+    restartBtn.innerHTML = "重开";
+    restartBtn.onclick = () => {
       window.location.reload();
     }
-    document.getElementById("buttons").appendChild(this.restartBtn);
+    document.getElementById("buttons").appendChild(restartBtn);
 
-    this.clearBtn = document.createElement("button");
-    this.clearBtn.innerHTML = "清屏";
-    this.clearBtn.onclick = () => {
+    const clearBtn = document.createElement("button");
+    clearBtn.innerHTML = "清屏";
+    clearBtn.onclick = () => {
       this.data.clear();
       this.dataOld.clear();
       this.history.length = 0;
     }
-    document.getElementById("buttons").appendChild(this.clearBtn);
+    document.getElementById("buttons").appendChild(clearBtn);
 
-    this.aboutBtn = document.createElement("button");
-    this.aboutBtn.innerHTML = "什么是生命游戏？";
-    this.aboutBtn.onclick = () => {
+    const aboutBtn = document.createElement("button");
+    aboutBtn.innerHTML = "什么是生命游戏？";
+    aboutBtn.onclick = () => {
       window.open("https://baike.baidu.com/item/生命游戏");
     }
-    document.getElementById("buttons").appendChild(this.aboutBtn);
+    document.getElementById("buttons").appendChild(aboutBtn);
 
-    this.speedRange = document.getElementById("speed");
-    this.speedRange.oninput = () => {
-      this.speed = 200 - Number(this.speedRange.value);
+    const speedRange = document.getElementById("speed");
+    speedRange.oninput = () => {
+      this.speed = 200 - speedRange.valueAsNumber;
     }
-    this.speed = 200 - Number(this.speedRange.value);
+    this.speed = 200 - speedRange.valueAsNumber;
 
     this.bHeatDeath = document.getElementById("heat-death");
 
     this.canvas.style.cursor = "pointer";
-    this.penBtn.style.cursor = "pointer";
-    this.randomBtn.style.cursor = "pointer";
-    this.clearBtn.style.cursor = "pointer";
-    this.aboutBtn.style.cursor = "help";
-    this.restartBtn.style.cursor = "pointer";
-    this.pauseBtn.style.cursor = "pointer";
+    penBtn.style.cursor = "pointer";
+    randomBtn.style.cursor = "pointer";
+    clearBtn.style.cursor = "pointer";
+    aboutBtn.style.cursor = "help";
+    restartBtn.style.cursor = "pointer";
+    pauseBtn.style.cursor = "pointer";
+  }
+
+  resize(n) {
+    this.cellSize = cellSizes[n];
+    this.data = new Bitmap(bitMapWs[n], bitMapHs[n]);
+    this.dataOld = this.data.copy();
+    this.history.length = 0;
+    this.history.push(this.dataOld);
+    this.pause = true;
   }
 
   setMap(map) {
@@ -232,10 +254,13 @@ class GameOfLife {
     }
   }
 
-  drawCell(x, y, color = "gray", height = 10) {
+  drawCell(x, y, color = "gray") {
     this.context.fillStyle = color;
-    this.context.fillRect(x * 10, y * 10, height, height);
-    this.context.strokeRect(x * 10, y * 10, height, height);
+    this.context.fillRect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize);
+    if (this.cellSize < 6) {
+      return;
+    }
+    this.context.strokeRect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize);
   }
 
   getCountAdjacency(x, y, direction = 0) {
