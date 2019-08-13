@@ -83,10 +83,20 @@ class GameOfLife {
       DIRECTION_RIGHT_DWON: 8
     }
 
+    let brushSizeRange = document.getElementById("brush-size");
+    const drawPen = (x, y) => {
+      const r = brushSizeRange.value >>> 1;
+      for (let i = -r; i <= r; i++) {
+        for (let j = -r; j <= r; j++) {
+          this.data.setData(x + i, y + j, penColor);
+        }
+      }
+    }
+
     this.canvas.onmousedown = (e) => {
       const x = Math.floor(e.offsetX / 10);
       const y = Math.floor(e.offsetY / 10);
-      this.data.setData(x, y, penColor);
+      drawPen(x, y);
     }
 
     this.canvas.onmousemove = (e) => {
@@ -95,7 +105,7 @@ class GameOfLife {
       }
       const x = Math.floor(e.offsetX / 10);
       const y = Math.floor(e.offsetY / 10);
-      this.data.setData(x, y, penColor);
+      drawPen(x, y);
     }
 
     this.canvas.ontouchstart = (e) => {
@@ -109,7 +119,7 @@ class GameOfLife {
         let y = touch.clientY - this.canvas.offsetTop;
         x = Math.floor(x / 10);
         y = Math.floor(y / 10);
-        this.data.setData(x, y, penColor);
+        drawPen(x, y);
       }
       e.preventDefault();
     }
@@ -128,13 +138,12 @@ class GameOfLife {
     document.getElementById("buttons").appendChild(this.pauseBtn);
 
     const pencilOrRubber = ["橡皮", "铅笔"];
-    this.penBtn = document.createElement("button");
-    this.penBtn.innerHTML = pencilOrRubber[penColor];
+    this.penBtn = document.getElementById("pen");
+    this.penBtn.value = pencilOrRubber[penColor];
     this.penBtn.onclick = () => {
       penColor = penColor ? 0 : 1;
-      this.penBtn.innerHTML = pencilOrRubber[penColor];
+      this.penBtn.value = pencilOrRubber[penColor];
     }
-    document.getElementById("buttons").appendChild(this.penBtn);
 
     this.randomBtn = document.createElement("button");
     this.randomBtn.innerHTML = "随机汤";
