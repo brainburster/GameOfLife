@@ -111,10 +111,6 @@ class GameOfLife {
     this.context.strokeStyle = "black";
 
     const mapSizeRange = document.getElementById("map-size");
-    mapSizeRange.oninput = () => {
-      this.resize(mapSizeRange.valueAsNumber);
-      this.setMap(map);
-    }
 
     this.cellSize = cellSizes[mapSizeRange.valueAsNumber];
     this.data = new Bitmap(bitMapWs[mapSizeRange.valueAsNumber], bitMapHs[mapSizeRange.valueAsNumber]);
@@ -177,13 +173,26 @@ class GameOfLife {
       e.preventDefault();
     }
 
+    window.onkeydown = (e) => {
+      switch (e.key) {
+        case "z":
+          if (this.history.length > 1) {
+            this.data = this.history.pop();
+          }
+          break;
+        default:
+          break;
+      }
+    }
+
     // const undoBtn = document.createElement("button");
-    // undoBtn.innerHTML = `撤销,最多7步`;
+    // undoBtn.innerHTML = `撤销`;
     // undoBtn.onclick = () => {
     //   if (this.history.length > 1) {
     //     this.data = this.history.pop();
+    //   } else {
+    //     undoBtn.hidden = true;
     //   }
-    //   undoBtn.innerHTML = `撤销,最多${this.history.length-1}步`;
     // }
     // document.getElementById("buttons").appendChild(undoBtn);
 
@@ -197,7 +206,6 @@ class GameOfLife {
       this.update();
       this.pause = true;
       this.draw();
-      //undoBtn.innerHTML = `撤销,最多${this.history.length-1}步`;
     }
     document.getElementById("buttons").appendChild(debugBtn);
 
@@ -211,6 +219,13 @@ class GameOfLife {
         pauseBtn.innerHTML = "暂停，以绘制地图";
       }
     }
+
+    mapSizeRange.oninput = () => {
+      this.resize(mapSizeRange.valueAsNumber);
+      this.setMap(map);
+      pauseBtn.innerHTML = "点击，以开始";
+    }
+
     document.getElementById("buttons").appendChild(pauseBtn);
 
     const pencilOrRubber = ["橡皮", "铅笔"];
@@ -266,6 +281,7 @@ class GameOfLife {
     this.bHeatDeath = document.getElementById("heat-death");
 
     this.canvas.style.cursor = "pointer";
+    debugBtn.style.cursor = "pointer";
     penBtn.style.cursor = "pointer";
     randomBtn.style.cursor = "pointer";
     clearBtn.style.cursor = "pointer";
