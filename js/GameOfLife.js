@@ -124,6 +124,18 @@ class GameOfLife {
       e.preventDefault();
     }
 
+    this.debugBtn = document.createElement("button");
+    this.debugBtn.innerHTML = "单步调试";
+    this.debugBtn.onclick = () => {
+      if (!this.pause) {
+        return;
+      }
+      this.pause = false;
+      this.update();
+      this.pause = true;
+      this.draw();
+    }
+    document.getElementById("buttons").appendChild(this.debugBtn);
 
     this.pauseBtn = document.createElement("button");
     this.pauseBtn.innerHTML = "点击，以开始";
@@ -270,7 +282,7 @@ class GameOfLife {
     return this.dataOld.getData(x, y);
   }
 
-  logic() {
+  update() {
     if (this.pause) {
       return;
     }
@@ -319,7 +331,7 @@ class GameOfLife {
       lag += elapsed;
 
       while (lag >= this.speed) {
-        this.logic();
+        this.update();
         lag -= this.speed;
       }
       this.draw();
