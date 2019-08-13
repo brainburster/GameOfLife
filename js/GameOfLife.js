@@ -177,6 +177,16 @@ class GameOfLife {
       e.preventDefault();
     }
 
+    // const undoBtn = document.createElement("button");
+    // undoBtn.innerHTML = `撤销,最多7步`;
+    // undoBtn.onclick = () => {
+    //   if (this.history.length > 1) {
+    //     this.data = this.history.pop();
+    //   }
+    //   undoBtn.innerHTML = `撤销,最多${this.history.length-1}步`;
+    // }
+    // document.getElementById("buttons").appendChild(undoBtn);
+
     const debugBtn = document.createElement("button");
     debugBtn.innerHTML = "单步调试";
     debugBtn.onclick = () => {
@@ -187,6 +197,7 @@ class GameOfLife {
       this.update();
       this.pause = true;
       this.draw();
+      //undoBtn.innerHTML = `撤销,最多${this.history.length-1}步`;
     }
     document.getElementById("buttons").appendChild(debugBtn);
 
@@ -292,15 +303,20 @@ class GameOfLife {
     this.dataOld = this.data.copy();
     this.history.push(this.dataOld);
     if (this.history.length > 8) {
-      this.history.splice(0, 1);
+      this.history.shift();
     }
   }
 
   drawCell(x, y, color = "gray") {
     this.context.fillStyle = color;
     this.context.fillRect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize);
-    if (this.cellSize < 6) {
+    if (this.cellSize < 4) {
       return;
+    }
+    if (this.cellSize < 9) {
+      this.context.fillStyle = "darkgray";
+    } else {
+      this.context.fillStyle = "black";
     }
     this.context.strokeRect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize);
   }
