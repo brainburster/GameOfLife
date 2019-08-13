@@ -278,7 +278,29 @@ class GameOfLife {
     }
     this.speed = 200 - speedRange.valueAsNumber;
 
-    this.bHeatDeath = document.getElementById("heat-death");
+    this.bHeatDeath = true;
+    const checkboxHD = document.getElementById("heat-death")
+    checkboxHD.oninput = () => {
+      this.bHeatDeath = checkboxHD.checked;
+    };
+
+    this.selectB = document.getElementById("b");
+    this.selectS1 = document.getElementById("s1");
+    this.selectS2 = document.getElementById("s2");
+
+    this.sb = 3;
+    this.ss1 = 2;
+    this.ss2 = 3;
+
+    this.selectB.oninput = () => {
+      this.sb = this.selectB.selectedIndex;
+    }
+    this.selectS1.oninput = () => {
+      this.ss1 = this.selectS1.selectedIndex;
+    }
+    this.selectS2.oninput = () => {
+      this.ss2 = this.selectS2.selectedIndex;
+    }
 
     this.canvas.style.cursor = "pointer";
     debugBtn.style.cursor = "pointer";
@@ -389,15 +411,15 @@ class GameOfLife {
     this.saveData();
     for (let i = 0; i < this.data.w; i++) {
       for (let j = 0; j < this.data.h; j++) {
-        let temp = this.getCountAdjacency(i, j);
-        if (temp == 3) {
+        let adj = this.getCountAdjacency(i, j);
+        if (adj === this.sb) { //b3
           //出生
           this.data.setData(i, j, 1);
-        } else if (temp != 2) {
+        } else if (adj === this.ss1 || adj === this.ss2) { //s23
+          //不变
+        } else {
           //死亡
           this.data.setData(i, j, 0);
-        } else {
-          //不变
         }
       }
     }
@@ -408,7 +430,7 @@ class GameOfLife {
     for (let i = 0; i < this.data.w; i++) {
       for (let j = 0; j < this.data.h; j++) {
         if (this.data.getData(i, j)) {
-          if (this.bHeatDeath.checked) {
+          if (this.bHeatDeath) {
             const count = this.history.reduce((a, b) => a + b.getData(i, j), 0);
             this.drawCell(i, j, colors[count]);
           } else {
