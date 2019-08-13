@@ -108,9 +108,9 @@ class GameOfLife {
       drawPen(x, y);
     }
 
-    this.canvas.ontouchstart = (e) => {
-      e.preventDefault();
-    }
+    // this.canvas.ontouchstart = (e) => {
+    //   e.preventDefault();
+    // }
 
     this.canvas.ontouchmove = (e) => {
       for (let i = 0; i < e.targetTouches.length; i++) {
