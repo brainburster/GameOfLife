@@ -60,7 +60,7 @@ const cellSizes = [20, 10, 5, 3, 2, 1];
 const bitMapWs = [40, 80, 160, 266, 400, 800];
 const bitMapHs = [30, 60, 120, 200, 300, 600];
 
-const map = [
+const defaultMap = [
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -222,7 +222,7 @@ class GameOfLife {
 
     mapSizeRange.oninput = () => {
       this.resize(mapSizeRange.valueAsNumber);
-      this.setMap(map);
+      this.setMap(defaultMap);
       pauseBtn.innerHTML = "点击，以开始";
     }
 
