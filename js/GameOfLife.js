@@ -69,7 +69,7 @@ class GameOfLife {
     this.history = [];
     this.history.push(this.dataOld);
     this.pause = true;
-    //console.log(this.data);
+
     //定义枚举
     this.direction = {
       DIRECTION_ALL: 0,
@@ -82,12 +82,6 @@ class GameOfLife {
       DIRECTION_RIGHT_UP: 7,
       DIRECTION_RIGHT_DWON: 8
     }
-
-    // this.canvas.onclick = (e) => {
-    //   const x = Math.floor(e.offsetX / 10);
-    //   const y = Math.floor(e.offsetY / 10);
-    //   console.log(x, y, this.getCountAdjacency(x, y));
-    // }
 
     this.canvas.onmousemove = (e) => {
       if (e.buttons !== 1) {
@@ -167,13 +161,9 @@ class GameOfLife {
     this.clear_btn = document.createElement("button");
     this.clear_btn.innerHTML = "清屏";
     this.clear_btn.onclick = () => {
-      for (let i = 0; i < this.data.w; i++) {
-        for (let j = 0; j < this.data.h; j++) {
-          this.data.clear();
-          this.dataOld.clear();
-          this.history.length = 0;
-        }
-      }
+      this.data.clear();
+      this.dataOld.clear();
+      this.history.length = 0;
     }
     document.getElementById("buttons").appendChild(this.clear_btn);
 
@@ -206,7 +196,7 @@ class GameOfLife {
         this.data.setData(i, j, map[i][j]);
       }
     }
-    //创建虚假的历史
+    //创建虚假而永恒的历史
     this.history.push(this.data);
     this.history.push(this.data);
     this.history.push(this.data);
