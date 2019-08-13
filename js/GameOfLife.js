@@ -69,7 +69,7 @@ class GameOfLife {
     this.history = [];
     this.history.push(this.dataOld);
     this.pause = true;
-
+    let penColor = 1;
     //定义枚举
     this.direction = {
       DIRECTION_ALL: 0,
@@ -83,24 +83,19 @@ class GameOfLife {
       DIRECTION_RIGHT_DWON: 8
     }
 
+    this.canvas.onmousedown = (e) => {
+      const x = Math.floor(e.offsetX / 10);
+      const y = Math.floor(e.offsetY / 10);
+      this.data.setData(x, y, penColor);
+    }
+
     this.canvas.onmousemove = (e) => {
       if (e.buttons !== 1) {
         return;
       }
       const x = Math.floor(e.offsetX / 10);
       const y = Math.floor(e.offsetY / 10);
-      this.data.setData(x, y, 1);
-    }
-
-    //鼠标点击事件
-    this.canvas.onmouseup = (e) => {
-      const x = Math.floor(e.offsetX / 10);
-      const y = Math.floor(e.offsetY / 10);
-      if (this.data.getData(x, y)) {
-        this.data.setData(x, y, 0);
-      } else {
-        this.data.setData(x, y, 1);
-      }
+      this.data.setData(x, y, penColor);
     }
 
     this.canvas.ontouchstart = (e) => {
@@ -108,26 +103,17 @@ class GameOfLife {
     }
 
     this.canvas.ontouchmove = (e) => {
-      let x = e.targetTouches[0].clientX - this.canvas.offsetLeft;
-      let y = e.targetTouches[0].clientY - this.canvas.offsetTop;
-      x = Math.floor(x / 10);
-      y = Math.floor(y / 10);
-      this.data.setData(x, y, 1);
-      e.preventDefault();
-    }
-
-    this.canvas.ontouchend = (e) => {
-      let x = e.changedTouches[0].clientX - this.canvas.offsetLeft;
-      let y = e.changedTouches[0].clientY - this.canvas.offsetTop;
-      x = Math.floor(x / 10);
-      y = Math.floor(y / 10);
-      if (this.data.getData(x, y)) {
-        this.data.setData(x, y, 0);
-      } else {
-        this.data.setData(x, y, 1);
+      for (let i = 0; i < e.targetTouches.length; i++) {
+        const touch = e.targetTouches[i];
+        let x = touch.clientX - this.canvas.offsetLeft;
+        let y = touch.clientY - this.canvas.offsetTop;
+        x = Math.floor(x / 10);
+        y = Math.floor(y / 10);
+        this.data.setData(x, y, penColor);
       }
       e.preventDefault();
     }
+
 
     this.pause_btn = document.createElement("button");
     this.pause_btn.innerHTML = "点击，以开始";
@@ -140,6 +126,16 @@ class GameOfLife {
       }
     }
     document.getElementById("buttons").appendChild(this.pause_btn);
+
+    const pencilOrRubber = ["橡皮", "铅笔"];
+    this.pen_btn = document.createElement("button");
+    this.pen_btn.innerHTML = pencilOrRubber[penColor];
+    this.pen_btn.onclick = () => {
+      penColor = penColor ? 0 : 1;
+      this.pen_btn.innerHTML = pencilOrRubber[penColor];
+    }
+    document.getElementById("buttons").appendChild(this.pen_btn);
+
     this.random_btn = document.createElement("button");
     this.random_btn.innerHTML = "随机汤";
     this.random_btn.onclick = () => {
