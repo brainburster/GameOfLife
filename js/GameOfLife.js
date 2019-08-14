@@ -154,7 +154,7 @@ const tools = {
       console.log(map, r);
       for (let j = 0; j < map.length; j++) {
         for (let i = 0; i < map[j].length; i++) {
-          game.data.setData(x + i, y + j, map[j][i]);
+          game.data.setData(x + i - (map[j].length >>> 1), y + j - (map.length >>> 1), map[j][i]);
         }
       }
     }
@@ -199,7 +199,7 @@ const tools = {
       const map = tools["振荡器"].maps[r];
       for (let j = 0; j < map.length; j++) {
         for (let i = 0; i < map[j].length; i++) {
-          game.data.setData(x + i, y + j, map[j][i]);
+          game.data.setData(x + i - (map[j].length >>> 1), y + j - (map.length >>> 1), map[j][i]);
         }
       }
     }
