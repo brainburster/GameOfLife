@@ -26,7 +26,7 @@
     <span>&nbsp&nbsp热寂效果：</span>
     <input type="checkbox" name="heat-death" id="heat-death" checked="true">
     <span>&nbsp&nbsp切换工具：</span>
-    <input type="button" id="pen" value="铅笔">
+    <select name="tool" id="tool"></select>
     <span>&nbsp&nbsp笔刷大小：</span>
     <input type="range" name="brush-size" id="brush-size" min="1" max="9" value="3" step="2">
     <br>
@@ -48,21 +48,18 @@
       const selectS1 = document.getElementById("s1");
       const selectS2 = document.getElementById("s2");
       for (let i = 0; i < 9; i++) {
-        const optionB = document.createElement("option")
-        const optionS1 = document.createElement("option")
-        const optionS2 = document.createElement("option")
-        optionS2.text = optionS1.text = optionB.text = i.toString();
+        const optionB = document.createElement("option");
+        const optionS1 = document.createElement("option");
+        const optionS2 = document.createElement("option");
+        optionS2.text = optionS1.text = optionB.text = i;
         optionS2.value = optionS1.value = optionB.value = i;
-        if (i === 3) {
-          optionB.selected = "selected";
-          optionS2.selected = "selected";
-        } else if (i === 2) {
-          optionS1.selected = "selected";
-        }
         selectB.appendChild(optionB);
         selectS1.appendChild(optionS1);
         selectS2.appendChild(optionS2);
       }
+      selectB.value = 3;
+      selectS1.value = 2;
+      selectS2.value = 3;
       const buttonDefault = document.getElementById("bs-default");
       buttonDefault.addEventListener("click", () => {
         selectB.value = 3;
@@ -72,6 +69,16 @@
         selectS1.oninput();
         selectS2.oninput();
       })
+      const selectTool = document.getElementById("tool");
+      const toolNames = ["铅笔", "橡皮", "飞行器", "振荡器"];
+      for (let i = 0; i < toolNames.length; i++) {
+        const toolName = toolNames[i];
+        const optionTool = document.createElement("option");
+        optionTool.text = toolName;
+        optionTool.value = toolName;
+        selectTool.appendChild(optionTool);
+      }
+      selectTool.value = toolNames[0];
 
       const game = new GameOfLife();
       game.setMap(defaultMap);
