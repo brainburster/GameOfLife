@@ -357,12 +357,12 @@ class GameOfLife {
     }
     document.getElementById("buttons").appendChild(clearBtn);
 
-    const aboutBtn = document.createElement("button");
-    aboutBtn.innerHTML = "什么是生命游戏？";
-    aboutBtn.onclick = () => {
-      window.open("https://baike.baidu.com/item/生命游戏");
+    const GPUBtn = document.createElement("button");
+    GPUBtn.innerHTML = "GPU版本..";
+    GPUBtn.onclick = () => {
+      window.open("https://brainburster.github.io/GameOfLife/gameOfLifeGpu");
     }
-    document.getElementById("buttons").appendChild(aboutBtn);
+    document.getElementById("buttons").appendChild(GPUBtn);
 
     const speedRange = document.getElementById("speed");
     speedRange.oninput = () => {
@@ -398,7 +398,7 @@ class GameOfLife {
     debugBtn.style.cursor = "pointer";
     randomBtn.style.cursor = "pointer";
     clearBtn.style.cursor = "pointer";
-    aboutBtn.style.cursor = "help";
+    GPUBtn.style.cursor = "pointer";
     restartBtn.style.cursor = "pointer";
     pauseBtn.style.cursor = "pointer";
   }

@@ -18,7 +18,7 @@ varying vec2 uv;
 uniform sampler2D sampler;
 
 int isLive(vec2 direction){
-  if(texture2D(sampler,((gl_FragCoord.xy+direction)/vec2(512,512))).r>0.1){
+  if(texture2D(sampler,((gl_FragCoord.xy+direction)/vec2(1024,1024))).r>0.1){
     return 1;
   }
   return 0;
@@ -34,18 +34,18 @@ void main(){
   isLive(vec2(-1,-1))+
   isLive(vec2(-1,0));
   if(sum==3){
-    gl_FragColor = vec4(1,0.9,0.9,1);
+    gl_FragColor = vec4(1,1,1,1);
   }
   else if(sum==2){//||sum==3
     float r = texture2D(sampler,uv).r;
-    if(r>0.3){
+    if(r>0.5){
       r-=0.1;
     }
-    gl_FragColor = vec4(r,r,r,1);
+    gl_FragColor = vec4(r,0.3,0.3,1);
   }else{
     gl_FragColor = vec4(0,0,0,1);
   }
-  //gl_FragColor = texture2D(sampler,((gl_FragCoord.xy)/vec2(512,512)));//texture2D(sampler,uv);
+  //gl_FragColor = texture2D(sampler,((gl_FragCoord.xy)/vec2(800,600)));//texture2D(sampler,uv);
 }
 `
 
@@ -75,7 +75,7 @@ class GameOfLife {
     this.gl = this.cvs.getContext("webgl");
     this.cvs.width = cvsW;
     this.cvs.height = cvsH;
-    this.gl.viewport(0, 0, cvsW, cvsH);
+    this.gl.viewport(0, 0, w, h);
     this.w = w;
     this.h = h;
     const gl = this.gl;
@@ -136,6 +136,17 @@ class GameOfLife {
     gl.enableVertexAttribArray(this.locUv);
     this.ext.bindVertexArrayOES(null);
 
+    const btnStart = document.getElementById("start");
+    btnStart.value = this.pause ? "开始" : "暂停";
+    btnStart.oninput = () => {
+      this.pause = !this.pause;
+      btnStart.value = this.pause ? "开始" : "暂停";
+    }
+    const range = document.getElementById("speed");
+    this.delay = 205 - range.valueAsNumber;
+    range.oninput = () => {
+      this.delay = 205 - range.valueAsNumber;
+    }
   }
 
   getCanvas() {
@@ -147,14 +158,14 @@ class GameOfLife {
   }
 
   init() {
-    const data = new Uint8Array(512 * 512 * 4);
+    const data = new Uint8Array(1024 * 1024 * 4);
     for (let i = 0; i < data.length; i++) {
       data[i] = Math.random() > 0.3 ? 255 : 0;
       if (i % 4 === 3) {
         data[i] = 255;
       }
     }
-    this.data.init(512, 512, data);
+    this.data.init(1024, 1024, data);
     this.gl.clearColor(0.1, 0.1, 0.1, 1);
     this.gl.disable(this.gl.DEPTH_TEST);
   }
@@ -168,7 +179,6 @@ class GameOfLife {
     if (this.pause) {
       return;
     }
-    //this.gl.viewport(0, 0, 512, 512);
     const gl = this.gl;
     gl.useProgram(this.program);
     gl.clear(gl.COLOR_BUFFER_BIT);
@@ -178,7 +188,7 @@ class GameOfLife {
     this.ext.bindVertexArrayOES(null);
     this.data.swapBuffer();
     gl.bindTexture(gl.TEXTURE_2D, this.data.getTexture());
-    gl.copyTexImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 0, 0, 512, 512, 0);
+    gl.copyTexImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 0, 0, this.w, this.h, 0);
     gl.bindTexture(gl.TEXTURE_2D, null);
   }
 
@@ -213,7 +223,7 @@ class GameOfLife {
 }
 
 window.onload = function () {
-  const game = new GameOfLife(512, 512, 512, 512);
+  const game = new GameOfLife(1024, 1024, 800, 600);
   document.getElementById("game").appendChild(game.getCanvas());
   game.run();
 }

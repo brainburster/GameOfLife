@@ -15,14 +15,24 @@
       border: 1px solid black;
       box-shadow: 0px 0px 10px black;
     }
+
+    div {
+      text-align: center;
+    }
   </style>
   <script src="./js/gameOfLifeGpu.js"></script>
 </head>
 
 <body style="user-select:none;">
-  <h1 style="text-align:center;margin-top: 20px;">GPU版本还在开发中</h1>
+  <h1 style="text-align:center;margin-top: 20px;">GPU版本还在开发中,很多功能还没添加</h1>
   <div id="game"></div>
-  <div id="control"></div>
+  <div id="control">
+    <input type="button" id="start" value="暂停/开始">
+    <br>
+    <br>
+    <label for="speed">速度:</label>
+    <input type="range" id="speed" min="1" max="200" value="172">
+  </div>
 </body>
 
 </html>
