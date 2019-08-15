@@ -147,6 +147,11 @@ class GameOfLife {
     range.oninput = () => {
       this.delay = 205 - range.valueAsNumber;
     }
+    const btnCpu = document.getElementById("back2Cpu");
+    btnCpu.oninput = () => {
+      window.location.href = "https://brainburster.github.io/GameOfLife/";
+    }
+
   }
 
   getCanvas() {
