@@ -264,10 +264,6 @@ class GameOfLife {
       tools[selectTool.value].onmousedown && tools[selectTool.value].onmousedown(this, x, y, brushSizeRange.valueAsNumber >>> 1);
     }
 
-    // this.canvas.ontouchstart = (e) => {
-    //   e.preventDefault();
-    // }
-
     this.canvas.ontouchmove = (e) => {
       for (let i = 0; i < e.targetTouches.length; i++) {
         const touch = e.targetTouches[i];
@@ -292,16 +288,16 @@ class GameOfLife {
       }
     }
 
-    // const undoBtn = document.createElement("button");
-    // undoBtn.innerHTML = `撤销`;
-    // undoBtn.onclick = () => {
-    //   if (this.history.length > 1) {
-    //     this.data = this.history.pop();
-    //   } else {
-    //     undoBtn.hidden = true;
-    //   }
-    // }
-    // document.getElementById("buttons").appendChild(undoBtn);
+    const undoBtn = document.createElement("button");
+    undoBtn.innerHTML = `撤销一次`;
+    undoBtn.onclick = () => {
+      if (this.pause) {
+        const tmp = this.data;
+        this.data = this.dataOld;
+        this.dataOld = tmp;
+      }
+    }
+    document.getElementById("buttons").appendChild(undoBtn);
 
     const debugBtn = document.createElement("button");
     debugBtn.innerHTML = "单步调试";
@@ -316,7 +312,7 @@ class GameOfLife {
     }
     document.getElementById("buttons").appendChild(debugBtn);
 
-    const pauseBtn = document.createElement("button");
+    const pauseBtn = document.getElementById("pause");
     pauseBtn.innerHTML = "点击，以开始";
     pauseBtn.onclick = () => {
       this.pause = !this.pause;
@@ -332,8 +328,6 @@ class GameOfLife {
       this.setMap(defaultMap);
       pauseBtn.innerHTML = "点击，以开始";
     }
-
-    document.getElementById("buttons").appendChild(pauseBtn);
 
     const randomBtn = document.createElement("button");
     randomBtn.innerHTML = "随机汤";
