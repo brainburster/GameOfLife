@@ -147,8 +147,8 @@ class GameOfLife {
     range.oninput = () => {
       this.delay = 205 - range.valueAsNumber;
     }
-    const btnCpu = document.getElementById("debug");
-    btnCpu.onclick = () => {
+    const btnDebug = document.getElementById("debug");
+    btnDebug.onclick = () => {
       this.pause = false;
       this.update();
       this.pause = true;
