@@ -301,9 +301,6 @@ class GameOfLife {
     const debugBtn = document.createElement("button");
     debugBtn.innerHTML = "单步调试";
     debugBtn.onclick = () => {
-      if (!this.pause) {
-        return;
-      }
       this.pause = false;
       this.update();
       this.pause = true;
