@@ -138,7 +138,7 @@ class GameOfLife {
 
     const btnStart = document.getElementById("start");
     btnStart.value = this.pause ? "开始" : "暂停";
-    btnStart.oninput = () => {
+    btnStart.onclick = () => {
       this.pause = !this.pause;
       btnStart.value = this.pause ? "开始" : "暂停";
     }
@@ -148,7 +148,7 @@ class GameOfLife {
       this.delay = 205 - range.valueAsNumber;
     }
     const btnCpu = document.getElementById("back2Cpu");
-    btnCpu.oninput = () => {
+    btnCpu.onclick = () => {
       window.location.href = "https://brainburster.github.io/GameOfLife/";
     }
 
