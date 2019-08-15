@@ -17,8 +17,35 @@ precision lowp float;
 varying vec2 uv;
 uniform sampler2D sampler;
 
+int isLive(vec2 direction){
+  if(texture2D(sampler,((gl_FragCoord.xy+direction)/vec2(512,512))).r>0.1){
+    return 1;
+  }
+  return 0;
+}
+
 void main(){
-  gl_FragColor=texture2D(sampler,uv);
+  int sum = isLive(vec2(-1,1))+
+  isLive(vec2(0,1))+
+  isLive(vec2(1,1))+
+  isLive(vec2(1,0))+
+  isLive(vec2(1,-1))+
+  isLive(vec2(0,-1))+
+  isLive(vec2(-1,-1))+
+  isLive(vec2(-1,0));
+  if(sum==3){
+    gl_FragColor = vec4(1,0.9,0.9,1);
+  }
+  else if(sum==2){//||sum==3
+    float r = texture2D(sampler,uv).r;
+    if(r>0.3){
+      r-=0.1;
+    }
+    gl_FragColor = vec4(r,r,r,1);
+  }else{
+    gl_FragColor = vec4(0,0,0,1);
+  }
+  //gl_FragColor = texture2D(sampler,((gl_FragCoord.xy)/vec2(512,512)));//texture2D(sampler,uv);
 }
 `
 
@@ -43,6 +70,7 @@ const rect = {
 class GameOfLife {
   constructor(w, h, cvsW = 800, cvsH = 600) {
     this.delay = 32; //ms
+    this.pause = false;
     this.cvs = document.createElement("canvas");
     this.gl = this.cvs.getContext("webgl");
     this.cvs.width = cvsW;
@@ -119,12 +147,16 @@ class GameOfLife {
   }
 
   init() {
-    const data = new Uint8Array(1024 * 1024 * 4);
+    const data = new Uint8Array(512 * 512 * 4);
     for (let i = 0; i < data.length; i++) {
-      data[i] = Math.random() * 255;
+      data[i] = Math.random() > 0.3 ? 255 : 0;
+      if (i % 4 === 3) {
+        data[i] = 255;
+      }
     }
-    this.data.init(1024, 1024, data);
-    this.gl.clearColor(0, 0, 0, 1);
+    this.data.init(512, 512, data);
+    this.gl.clearColor(0.1, 0.1, 0.1, 1);
+    this.gl.disable(this.gl.DEPTH_TEST);
   }
 
   handleInput() {
@@ -132,10 +164,11 @@ class GameOfLife {
   }
 
   update() {
-
-  }
-
-  render() {
+    //
+    if (this.pause) {
+      return;
+    }
+    //this.gl.viewport(0, 0, 512, 512);
     const gl = this.gl;
     gl.useProgram(this.program);
     gl.clear(gl.COLOR_BUFFER_BIT);
@@ -145,7 +178,13 @@ class GameOfLife {
     this.ext.bindVertexArrayOES(null);
     this.data.swapBuffer();
     gl.bindTexture(gl.TEXTURE_2D, this.data.getTexture());
-    gl.copyTexImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 0, 0, this.w, this.h, 0);
+    gl.copyTexImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 0, 0, 512, 512, 0);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+  }
+
+  render() {
+    //传入观察矩阵
+
   }
 
   run() {
@@ -174,7 +213,7 @@ class GameOfLife {
 }
 
 window.onload = function () {
-  const game = new GameOfLife(1024, 1024, 1024, 1024);
+  const game = new GameOfLife(512, 512, 512, 512);
   document.getElementById("game").appendChild(game.getCanvas());
   game.run();
 }
