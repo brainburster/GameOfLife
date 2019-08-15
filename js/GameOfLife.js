@@ -151,7 +151,6 @@ const tools = {
     ],
     onclick: (game, x, y, r) => {
       const map = tools["飞行器"].maps[r];
-      console.log(map, r);
       for (let j = 0; j < map.length; j++) {
         for (let i = 0; i < map[j].length; i++) {
           game.data.setData(x + i - (map[j].length >>> 1), y + j - (map.length >>> 1), map[j][i]);
