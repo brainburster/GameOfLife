@@ -152,6 +152,7 @@ class GameOfLife {
       this.pause = false;
       this.update();
       this.pause = true;
+      btnStart.value = this.pause ? "开始" : "暂停";
     }
     const btnCpu = document.getElementById("back2Cpu");
     btnCpu.onclick = () => {

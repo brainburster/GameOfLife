@@ -298,15 +298,6 @@ class GameOfLife {
     }
     document.getElementById("buttons").appendChild(undoBtn);
 
-    const debugBtn = document.createElement("button");
-    debugBtn.innerHTML = "单步调试";
-    debugBtn.onclick = () => {
-      this.pause = false;
-      this.update();
-      this.pause = true;
-      this.draw();
-    }
-    document.getElementById("buttons").appendChild(debugBtn);
 
     const pauseBtn = document.getElementById("pause");
     pauseBtn.innerHTML = "点击，以开始";
@@ -318,6 +309,22 @@ class GameOfLife {
         pauseBtn.innerHTML = "暂停，以绘制地图";
       }
     }
+
+
+    const debugBtn = document.createElement("button");
+    debugBtn.innerHTML = "单步调试";
+    debugBtn.onclick = () => {
+      this.pause = false;
+      this.update();
+      this.pause = true;
+      this.draw();
+      if (this.pause) {
+        pauseBtn.innerHTML = "点击，以开始";
+      } else {
+        pauseBtn.innerHTML = "暂停，以绘制地图";
+      }
+    }
+    document.getElementById("buttons").appendChild(debugBtn);
 
     mapSizeRange.oninput = () => {
       this.resize(mapSizeRange.valueAsNumber);
