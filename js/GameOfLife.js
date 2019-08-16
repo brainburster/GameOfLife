@@ -546,11 +546,14 @@ class GameOfLife {
       previous = current;
       lag += elapsed;
 
-      while (lag >= this.speed) {
-        this.update();
-        lag -= this.speed;
+      if (lang < 1000) {
+        while (lag >= this.speed) {
+          this.update();
+          lag -= this.speed;
+        }
+        this.draw();
       }
-      this.draw();
+
       requestAnimationFrame(gameloop);
     };
 
