@@ -37,7 +37,7 @@ void main(){
   if(color.r<0.2&&sum==3){
     gl_FragColor = vec4(1,1,0.3,1);
   }
-  else if(sum==2||sum==3){
+  else if(sum==2){
     if(color.r>0.2){
       color.r-=0.005;
     }
@@ -45,7 +45,17 @@ void main(){
       color.g-=0.02;
     }
     gl_FragColor = vec4(color.r,color.g,0.3,1);
-  }else{
+  }
+  else if(sum==3){
+    if(color.r>0.43){
+      color.r-=0.003;
+    }
+    if(color.g>0.3){
+      color.g-=0.01;
+    }
+    gl_FragColor = vec4(color.r,color.g,0.3,1);
+  }
+  else{
     gl_FragColor = vec4(0,0,0,1);
   }
   //gl_FragColor = texture2D(sampler,((gl_FragCoord.xy)/vec2(800,600)));//texture2D(sampler,uv);
@@ -119,6 +129,7 @@ class GameOfLife {
     gl.linkProgram(this.program);
     this.locPos = gl.getAttribLocation(this.program, "position");
     this.locUv = gl.getAttribLocation(this.program, "texCoord");
+    gl.useProgram(this.program);
 
     //创建VAO
     this.ext = gl.getExtension("OES_vertex_array_object");
@@ -146,9 +157,9 @@ class GameOfLife {
       btnStart.value = this.pause ? "开始" : "暂停";
     }
     const range = document.getElementById("speed");
-    this.delay = 205 - range.valueAsNumber;
+    this.delay = 203 - range.valueAsNumber;
     range.oninput = () => {
-      this.delay = 205 - range.valueAsNumber;
+      this.delay = 203 - range.valueAsNumber;
     }
     const btnDebug = document.getElementById("debug");
     btnDebug.onclick = () => {
@@ -195,7 +206,6 @@ class GameOfLife {
       return;
     }
     const gl = this.gl;
-    gl.useProgram(this.program);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.bindTexture(gl.TEXTURE_2D, this.data.getTexture());
     this.ext.bindVertexArrayOES(this.vao);
