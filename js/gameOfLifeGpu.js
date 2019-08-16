@@ -240,17 +240,23 @@ class GameOfLife {
     this.dx = 0;
     this.dy = 0;
     this.cvs.onwheel = (e) => {
+      this.dx = this.x - e.offsetX;
+      this.dy = this.y - e.offsetY;
       const scaleOld = this.scale;
       this.scale += e.deltaY;
       this.scale = Math.max(200, Math.min(this.scale, 3200));
-      this.x -= this.dx * (1 - this.scale / scaleOld);
-      this.y -= this.dy * (1 - this.scale / scaleOld);
+      this.x = e.offsetX + this.dx * (this.scale / scaleOld);
+      this.y = e.offsetY + this.dy * (this.scale / scaleOld);
       e.preventDefault();
     }
     this.cvs.oncontextmenu = (e) => {
       e.preventDefault();
     }
 
+    this.cvs.onmousedown = (e) => {
+      this.dx = this.x - e.offsetX;
+      this.dy = this.y - e.offsetY;
+    }
     this.cvs.onmousemove = (e) => {
       switch (e.buttons) {
         case 1:
@@ -261,10 +267,7 @@ class GameOfLife {
           this.x = e.offsetX + this.dx;
           this.y = e.offsetY + this.dy;
           break;
-
         default:
-          this.dx = this.x - e.offsetX;
-          this.dy = this.y - e.offsetY;
           break;
       }
     }
