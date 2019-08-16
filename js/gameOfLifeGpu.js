@@ -33,15 +33,18 @@ void main(){
   isLive(vec2(0,-1))+
   isLive(vec2(-1,-1))+
   isLive(vec2(-1,0));
-  if(sum==3){
-    gl_FragColor = vec4(1,1,1,1);
+  vec3 color = texture2D(sampler,uv).rgb;
+  if(color.r<0.2&&sum==3){
+    gl_FragColor = vec4(1,1,0.3,1);
   }
-  else if(sum==2){//||sum==3
-    float r = texture2D(sampler,uv).r;
-    if(r>0.5){
-      r-=0.1;
+  else if(sum==2||sum==3){
+    if(color.r>0.2){
+      color.r-=0.005;
     }
-    gl_FragColor = vec4(r,0.3,0.3,1);
+    if(color.g>0.2){
+      color.g-=0.02;
+    }
+    gl_FragColor = vec4(color.r,color.g,0.3,1);
   }else{
     gl_FragColor = vec4(0,0,0,1);
   }

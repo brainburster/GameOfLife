@@ -4,13 +4,14 @@
       "type": "chrome",
       "request": "launch",
       "name": "Launch Chrome against file",
-      "file": "${workspaceFolder}/index.html"
+      "file": "${workspaceFolder}/gameOfLifeGPU.html"
     },
     {
       "type": "chrome",
       "request": "launch",
       "name": "Launch Chrome against localhost",
       "url": "http://localhost/index.html",
+      "port": 5500,
       "webRoot": "${workspaceFolder}"
     }
   ]
