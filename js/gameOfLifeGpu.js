@@ -17,7 +17,11 @@ varying vec2 uv;
 uniform sampler2D sampler;
 
 int isLive(vec2 direction){
-  if(texture2D(sampler,((gl_FragCoord.xy+direction)/vec2(1024,1024))).r>0.1){
+  vec3 color = texture2D(sampler,((gl_FragCoord.xy+direction)/vec2(1024,1024))).rgb;
+  if(color.b>0.95&&color.r>0.95&&color.g>0.95){
+    return 0;
+  }
+  else if(color.r>0.2){
     return 1;
   }
   return 0;
@@ -33,14 +37,14 @@ void main(){
   isLive(vec2(-1,-1))+
   isLive(vec2(-1,0));
   vec3 color = texture2D(sampler,uv).rgb;
-  if(color.r<0.1&&sum==3){
+  if(color.r<0.2&&sum==3){
     gl_FragColor = vec4(1,1,0.3,1);
   }
   else if(sum==2){
-    if(color.r>0.2){
+    if(color.r>0.21){
       color.r-=0.005;
     }
-    if(color.g>0.2){
+    if(color.g>0.21){
       color.g-=0.02;
     }
     gl_FragColor = vec4(color.r,color.g,0.3,1);
@@ -150,13 +154,15 @@ class GameOfLife {
     this.delay = 32; //ms
     this.pause = false;
     this.cvs = document.createElement("canvas");
-    this.gl = this.cvs.getContext("webgl");
+    this.gl = this.cvs.getContext("webgl2") || this.cvs.getContext("webgl");
     this.cvs.width = cvsW;
     this.cvs.height = cvsH;
     this.gl.viewport(0, 0, w, h);
     this.w = w;
     this.h = h;
     const gl = this.gl;
+    this.fbuffer = gl.createFramebuffer();
+    const that = this;
     this.data = {
       frontTexture: gl.createTexture(),
       backTexture: gl.createTexture(),
@@ -170,11 +176,41 @@ class GameOfLife {
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.bindTexture(gl.TEXTURE_2D, this.backTexture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.bindTexture(gl.TEXTURE_2D, null);
+      },
+      load: function (image) {
+        const temp = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, temp);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+        gl.useProgram(that.renderProgram);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, that.fbuffer);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.frontTexture, 0);
+        gl.viewport(0, 0, 1024, 1024);
+        gl.uniformMatrix3fv(that.locRenderM, false, [
+          1, 0, 0,
+          0, 1, 0,
+          0, 0, 1
+        ]);
+
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.drawElements(gl.TRIANGLES, rect.indices.length, gl.UNSIGNED_BYTE, 0);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+
+        gl.bindBuffer
       }
     }
 
@@ -231,6 +267,47 @@ class GameOfLife {
     const btnCpu = document.getElementById("back2Cpu");
     btnCpu.onclick = () => {
       window.location.href = "https://brainburster.github.io/GameOfLife/";
+    }
+
+    const testImage = document.getElementById("test-image");
+    testImage.onclick = () => {
+      this.pause = true;
+      const image = new Image();
+      this.scale = 200;
+      this.x = 400;
+      this.y = 300;
+      image.crossOrigin = "";
+      image.onload = () => {
+        this.data.load(image);
+        this.render();
+        btnStart.value = this.pause ? "开始" : "暂停";
+      }
+      image.src = "./icon.png";
+    }
+
+    const loadImage = document.getElementById("load-image");
+    loadImage.onchange = () => {
+      const file = loadImage.files[0];
+      if (!file) {
+        alert("未载入图片");
+        return;
+      }
+      this.pause = true;
+      this.scale = 200;
+      this.x = 400;
+      this.y = 300;
+      const image = new Image();
+      image.crossOrigin = "";
+      image.onload = () => {
+        this.data.load(image);
+        this.render();
+        btnStart.value = this.pause ? "开始" : "暂停";
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        image.src = e.target.result;
+      }
+      reader.readAsDataURL(file);
     }
 
     //this.ext.bindVertexArrayOES(this.vao);
@@ -307,7 +384,6 @@ class GameOfLife {
     gl.viewport(0, 0, 1024, 1024);
     gl.useProgram(this.updateProgram);
     gl.bindTexture(gl.TEXTURE_2D, this.data.frontTexture);
-    this.fbuffer = gl.createFramebuffer();
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbuffer);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.data.backTexture, 0);
 
