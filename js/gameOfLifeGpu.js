@@ -66,11 +66,11 @@ precision mediump float;
 
 attribute vec2 position;
 attribute vec2 texCoord;
-uniform mat4 m;
+uniform mat3 m;
 varying vec2 uv;
 
 void main(){
-  gl_Position=m*vec4(position,0,1);
+  gl_Position=vec4((m*vec3(position,1)).xy,0,1);
   uv=texCoord;
 }
 `
@@ -116,6 +116,33 @@ function createProgram(gl, vsText, fsText) {
   gl.attachShader(program, fs);
   gl.linkProgram(program);
   return program;
+}
+
+function m3Cross(a, b) {
+  const [
+    a11, a12, a13,
+    a21, a22, a23,
+    a31, a32, a33
+  ] = a;
+  const [
+    b11, b12, b13,
+    b21, b22, b23,
+    b31, b32, b33
+  ] = b;
+  const c11 = a11 * b11 + a12 * b21 + a13 * b31;
+  const c12 = a11 * b12 + a12 * b22 + a13 * b32;
+  const c13 = a11 * b13 + a12 * b23 + a13 * b33;
+  const c21 = a21 * b11 + a22 * b21 + a23 * b31;
+  const c22 = a21 * b12 + a22 * b22 + a23 * b32;
+  const c23 = a21 * b13 + a22 * b23 + a23 * b33;
+  const c31 = a31 * b11 + a32 * b21 + a33 * b31;
+  const c32 = a31 * b12 + a32 * b22 + a33 * b32;
+  const c33 = a31 * b13 + a32 * b23 + a33 * b33;
+  return [
+    c11, c12, c13,
+    c21, c22, c23,
+    c31, c32, c33
+  ];
 }
 
 class GameOfLife {
@@ -207,15 +234,39 @@ class GameOfLife {
     }
 
     //this.ext.bindVertexArrayOES(this.vao);
-    this.scale = 1;
-
+    this.scale = 800;
+    this.x = 0;
+    this.y = 0;
+    this.dx = 0;
+    this.dy = 0;
     this.cvs.onwheel = (e) => {
-      this.scale += e.deltaY * 0.001;
-      this.scale = Math.max(0.4, Math.min(this.scale, 4));
+      const scaleOld = this.scale;
+      this.scale += e.deltaY;
+      this.scale = Math.max(200, Math.min(this.scale, 3200));
+      this.x -= this.dx * (1 - this.scale / scaleOld);
+      this.y -= this.dy * (1 - this.scale / scaleOld);
       e.preventDefault();
     }
     this.cvs.oncontextmenu = (e) => {
       e.preventDefault();
+    }
+
+    this.cvs.onmousemove = (e) => {
+      switch (e.buttons) {
+        case 1:
+          this.x = e.offsetX + this.dx;
+          this.y = e.offsetY + this.dy;
+          break;
+        case 2:
+          this.x = e.offsetX + this.dx;
+          this.y = e.offsetY + this.dy;
+          break;
+
+        default:
+          this.dx = this.x - e.offsetX;
+          this.dy = this.y - e.offsetY;
+          break;
+      }
     }
   }
 
@@ -266,21 +317,39 @@ class GameOfLife {
   }
 
   render() {
-    //传入观察矩阵
     const gl = this.gl;
     gl.viewport(0, 0, 800, 600);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.useProgram(this.renderProgram);
     gl.bindTexture(gl.TEXTURE_2D, this.data.frontTexture);
-    const a = this.scale;
-    const b = this.scale * this.cvs.width / this.cvs.height;
-    const mat = new Float32Array([
-      a, 0, 0, 0,
-      0, b, 0, 0,
-      0, 0, 1, 0,
-      0, 0, 0, 1
-    ])
-    gl.uniformMatrix4fv(this.locRenderM, false, mat);
+    const a = 2 / this.cvs.width;
+    const b = -2 / this.cvs.height; //* 4 / 3;
+    const x = this.x;
+    const y = this.y;
+    const s = this.scale;
+
+    const transMat = [
+      1, 0, 0,
+      0, 1, 0,
+      x, y, 1
+    ];
+
+    const scalMat = [
+      s, 0, 0,
+      0, s, 0,
+      0, 0, 1
+    ];
+
+    const projMat = [
+      a, 0, 0,
+      0, b, 0,
+      -1, 1, 1
+    ];
+
+    let mat = m3Cross(scalMat, transMat);
+    mat = m3Cross(mat, projMat);
+    gl.uniformMatrix3fv(this.locRenderM, false, mat);
+
     //this.ext.bindVertexArrayOES(this.vao);
     gl.drawElements(gl.TRIANGLES, rect.indices.length, gl.UNSIGNED_BYTE, 0);
     //this.ext.bindVertexArrayOES(null);
