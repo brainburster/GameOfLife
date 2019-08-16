@@ -231,14 +231,18 @@ class GameOfLife {
       previous = current;
       lag += elapsed;
 
-      this.handleInput();
+      if (lag < 500) {
+        this.handleInput();
+        while (lag >= this.delay) {
+          this.update();
+          lag -= this.delay;
+        }
 
-      while (lag >= this.delay) {
-        this.update();
-        lag -= this.delay;
+        this.render();
+      } else {
+        lag = 0;
       }
 
-      this.render();
       requestAnimationFrame(gameloop);
     };
 
