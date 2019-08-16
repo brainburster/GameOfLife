@@ -545,7 +545,6 @@ class GameOfLife {
       const elapsed = current - previous;
       previous = current;
       lag += elapsed;
-
       if (lag < 500) {
         while (lag >= this.speed) {
           this.update();

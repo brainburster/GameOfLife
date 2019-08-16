@@ -230,7 +230,6 @@ class GameOfLife {
       const elapsed = current - previous;
       previous = current;
       lag += elapsed;
-
       if (lag < 500) {
         this.handleInput();
         while (lag >= this.delay) {
