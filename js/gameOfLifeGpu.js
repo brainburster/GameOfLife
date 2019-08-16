@@ -1,9 +1,8 @@
-const vsText = `
-precision lowp float;
+const vsUpdate = `
+precision mediump float;
 
 attribute vec2 position;
 attribute vec2 texCoord;
-//uniform mat4 m;
 varying vec2 uv;
 
 void main(){
@@ -11,8 +10,8 @@ void main(){
   uv=texCoord;
 }
 `
-const fsText = `
-precision lowp float;
+const fsUpdate = `
+precision mediump float;
 
 varying vec2 uv;
 uniform sampler2D sampler;
@@ -34,7 +33,7 @@ void main(){
   isLive(vec2(-1,-1))+
   isLive(vec2(-1,0));
   vec3 color = texture2D(sampler,uv).rgb;
-  if(color.r<0.2&&sum==3){
+  if(color.r<0.1&&sum==3){
     gl_FragColor = vec4(1,1,0.3,1);
   }
   else if(sum==2){
@@ -62,6 +61,31 @@ void main(){
 }
 `
 
+const vsRender = `
+precision mediump float;
+
+attribute vec2 position;
+attribute vec2 texCoord;
+uniform mat4 m;
+varying vec2 uv;
+
+void main(){
+  gl_Position=m*vec4(position,0,1);
+  uv=texCoord;
+}
+`
+
+const fsRender = `
+precision mediump float;
+
+varying vec2 uv;
+uniform sampler2D sampler;
+
+void main(){
+  gl_FragColor = texture2D(sampler,uv);
+}
+`
+
 const rect = {
   positions: new Float32Array([
     -1.0, -1.0,
@@ -80,6 +104,20 @@ const rect = {
   ])
 }
 
+function createProgram(gl, vsText, fsText) {
+  const vs = gl.createShader(gl.VERTEX_SHADER);
+  const fs = gl.createShader(gl.FRAGMENT_SHADER);
+  gl.shaderSource(vs, vsText);
+  gl.shaderSource(fs, fsText);
+  gl.compileShader(vs);
+  gl.compileShader(fs);
+  const program = gl.createProgram();
+  gl.attachShader(program, vs);
+  gl.attachShader(program, fs);
+  gl.linkProgram(program);
+  return program;
+}
+
 class GameOfLife {
   constructor(w, h, cvsW = 800, cvsH = 600) {
     this.delay = 32; //ms
@@ -93,62 +131,57 @@ class GameOfLife {
     this.h = h;
     const gl = this.gl;
     this.data = {
-      texture1: gl.createTexture(),
-      texture2: gl.createTexture(),
+      frontTexture: gl.createTexture(),
+      backTexture: gl.createTexture(),
       swapBuffer: function () {
-        const temp = this.texture1;
-        this.texture1 = this.texture2;
-        this.texture2 = temp;
+        const temp = this.frontTexture;
+        this.frontTexture = this.backTexture;
+        this.backTexture = temp;
       },
       init: function (w, h, data) {
-        gl.bindTexture(gl.TEXTURE_2D, this.texture1);
+        gl.bindTexture(gl.TEXTURE_2D, this.frontTexture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-        gl.bindTexture(gl.TEXTURE_2D, this.texture2);
+        gl.bindTexture(gl.TEXTURE_2D, this.backTexture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
         gl.bindTexture(gl.TEXTURE_2D, null);
-      },
-      getTexture() {
-        return this.texture1;
       }
     }
 
-    //创建着色器程序
-    const vs = gl.createShader(gl.VERTEX_SHADER);
-    const fs = gl.createShader(gl.FRAGMENT_SHADER);
-    gl.shaderSource(vs, vsText);
-    gl.shaderSource(fs, fsText);
-    gl.compileShader(vs);
-    gl.compileShader(fs);
-    this.program = gl.createProgram();
-    gl.attachShader(this.program, vs);
-    gl.attachShader(this.program, fs);
-    gl.linkProgram(this.program);
-    this.locPos = gl.getAttribLocation(this.program, "position");
-    this.locUv = gl.getAttribLocation(this.program, "texCoord");
-    gl.useProgram(this.program);
 
+    //创建着色器程序
+    this.updateProgram = createProgram(gl, vsUpdate, fsUpdate);
+    this.locUpdatePos = gl.getAttribLocation(this.updateProgram, "position");
+    this.locUpdateUv = gl.getAttribLocation(this.updateProgram, "texCoord");
+    this.renderProgram = createProgram(gl, vsRender, fsRender);
+    this.locRenderPos = gl.getAttribLocation(this.renderProgram, "position");
+    this.locRenderUv = gl.getAttribLocation(this.renderProgram, "texCoord");
+    this.locRenderM = gl.getUniformLocation(this.renderProgram, "m");
     //创建VAO
-    this.ext = gl.getExtension("OES_vertex_array_object");
-    this.vao = this.ext.createVertexArrayOES();
-    this.ext.bindVertexArrayOES(this.vao);
+    //this.ext = gl.getExtension("OES_vertex_array_object");
+    //this.vao = this.ext.createVertexArrayOES();
+    //this.ext.bindVertexArrayOES(this.vao);
     const posBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, rect.positions, gl.STATIC_DRAW);
-    gl.vertexAttribPointer(this.locPos, 2, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(this.locUpdatePos, 2, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(this.locRenderPos, 2, gl.FLOAT, false, 0, 0);
     const uvBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, rect.uvs, gl.STATIC_DRAW);
-    gl.vertexAttribPointer(this.locUv, 2, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(this.locUpdateUv, 2, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(this.locRenderUv, 2, gl.FLOAT, false, 0, 0);
     const ebo = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, rect.indices, gl.STATIC_DRAW);
-    gl.enableVertexAttribArray(this.locPos);
-    gl.enableVertexAttribArray(this.locUv);
-    this.ext.bindVertexArrayOES(null);
+    gl.enableVertexAttribArray(this.locUpdatePos);
+    gl.enableVertexAttribArray(this.locUpdateUv);
+    gl.enableVertexAttribArray(this.locRenderPos);
+    gl.enableVertexAttribArray(this.locRenderUv);
+    //this.ext.bindVertexArrayOES(null);
 
     const btnStart = document.getElementById("start");
     btnStart.value = this.pause ? "开始" : "暂停";
@@ -157,9 +190,9 @@ class GameOfLife {
       btnStart.value = this.pause ? "开始" : "暂停";
     }
     const range = document.getElementById("speed");
-    this.delay = 203 - range.valueAsNumber;
+    this.delay = 216 - range.valueAsNumber;
     range.oninput = () => {
-      this.delay = 203 - range.valueAsNumber;
+      this.delay = 216 - range.valueAsNumber;
     }
     const btnDebug = document.getElementById("debug");
     btnDebug.onclick = () => {
@@ -173,6 +206,17 @@ class GameOfLife {
       window.location.href = "https://brainburster.github.io/GameOfLife/";
     }
 
+    //this.ext.bindVertexArrayOES(this.vao);
+    this.scale = 1;
+
+    this.cvs.onwheel = (e) => {
+      this.scale += e.deltaY * 0.001;
+      this.scale = Math.max(0.4, Math.min(this.scale, 4));
+      e.preventDefault();
+    }
+    this.cvs.oncontextmenu = (e) => {
+      e.preventDefault();
+    }
   }
 
   getCanvas() {
@@ -206,20 +250,40 @@ class GameOfLife {
       return;
     }
     const gl = this.gl;
-    gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.bindTexture(gl.TEXTURE_2D, this.data.getTexture());
-    this.ext.bindVertexArrayOES(this.vao);
+    gl.viewport(0, 0, 1024, 1024);
+    gl.useProgram(this.updateProgram);
+    gl.bindTexture(gl.TEXTURE_2D, this.data.frontTexture);
+    this.fbuffer = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbuffer);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.data.backTexture, 0);
+
+    //this.ext.bindVertexArrayOES(this.vao);
     gl.drawElements(gl.TRIANGLES, rect.indices.length, gl.UNSIGNED_BYTE, 0);
-    this.ext.bindVertexArrayOES(null);
-    this.data.swapBuffer();
-    gl.bindTexture(gl.TEXTURE_2D, this.data.getTexture());
-    gl.copyTexImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 0, 0, this.w, this.h, 0);
+    // this.ext.bindVertexArrayOES(null);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.bindTexture(gl.TEXTURE_2D, null);
+    this.data.swapBuffer();
   }
 
   render() {
     //传入观察矩阵
-
+    const gl = this.gl;
+    gl.viewport(0, 0, 800, 600);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.useProgram(this.renderProgram);
+    gl.bindTexture(gl.TEXTURE_2D, this.data.frontTexture);
+    const a = this.scale;
+    const b = this.scale * this.cvs.width / this.cvs.height;
+    const mat = new Float32Array([
+      a, 0, 0, 0,
+      0, b, 0, 0,
+      0, 0, 1, 0,
+      0, 0, 0, 1
+    ])
+    gl.uniformMatrix4fv(this.locRenderM, false, mat);
+    //this.ext.bindVertexArrayOES(this.vao);
+    gl.drawElements(gl.TRIANGLES, rect.indices.length, gl.UNSIGNED_BYTE, 0);
+    //this.ext.bindVertexArrayOES(null);
   }
 
   run() {
