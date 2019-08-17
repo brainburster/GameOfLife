@@ -378,7 +378,7 @@ class GameOfLife {
       this.dy = this.y - e.offsetY;
       const scaleOld = this.scale;
       this.scale += e.deltaY;
-      this.scale = Math.max(200, Math.min(this.scale, 3200));
+      this.scale = Math.max(200, Math.min(this.scale, 12800));
       this.x = e.offsetX + this.dx * (this.scale / scaleOld);
       this.y = e.offsetY + this.dy * (this.scale / scaleOld);
       e.preventDefault();
