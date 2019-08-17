@@ -267,7 +267,7 @@ class GameOfLife {
     }
     const btnCpu = document.getElementById("back2Cpu");
     btnCpu.onclick = () => {
-      window.location.href = "https://brainburster.github.io/GameOfLife/";
+      window.location.href = "./gameOfLife.html";
     }
 
     const testImage = document.getElementById("test-image");

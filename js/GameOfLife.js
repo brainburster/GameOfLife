@@ -364,7 +364,7 @@ class GameOfLife {
     const GPUBtn = document.createElement("button");
     GPUBtn.innerHTML = "GPU版本..";
     GPUBtn.onclick = () => {
-      window.open("https://brainburster.github.io/GameOfLife/gameOfLifeGpu");
+      window.location.href = "./gameOfLifeGpu.html";
     }
     document.getElementById("buttons").appendChild(GPUBtn);
 

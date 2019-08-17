@@ -1,0 +1,95 @@
+<!doctype html>
+
+<html lang="zh-Hans">
+
+<head>
+  <meta charset="UTF-8">
+  <title>GameOfLife</title>
+  <style>
+    canvas {
+      background: lightgray;
+      margin: 30px auto;
+      display: block;
+      border: 1px solid black;
+    }
+  </style>
+  <script src="js/GameOfLife.js"></script>
+  <meta http-equiv="X-UA-Compatible" content="ie=edge,chrome=1">
+  <link rel="shortcut icon" href="icon.png" type="image/x-icon">
+</head>
+
+<body style="user-select:none;">
+  <h1 style="text-align:center;margin-top: 20px;">生命游戏</h1>
+  <canvas id="main_canvas" height="600" width="800"></canvas>
+  <div id="buttons" style="text-align:center;margin:0 auto;">
+    <button id="pause">开始</button>
+    <br>
+    <br>
+    <span>调整速度：</span>
+    <input type="range" name="speed" id="speed" min="0" max="195" value="150">
+    <span>&nbsp&nbsp热寂效果：</span>
+    <input type="checkbox" name="heat-death" id="heat-death" checked="true">
+    <span>&nbsp&nbsp切换工具：</span>
+    <select name="tool" id="tool"></select>
+    <span>&nbsp&nbsp笔刷大小：</span>
+    <input type="range" name="brush-size" id="brush-size" min="1" max="9" value="5" step="2">
+    <br>
+    <br>
+    <span>宇宙大小：</span>
+    <input type="range" name="map-size" id="map-size" min="0" max="3" value="2" step="1">
+    <span>&nbsp&nbsp宇宙法则(B3/S23)： B</span>
+    <select name="b" id="b"></select>
+    <span>/S</span>
+    <select name="s1" id="s1"></select>
+    <select name="s2" id="s2"></select>
+    <button id="bs-default">恢复默认</button>
+    <br>
+    <br>
+  </div>
+  <script>
+    function main() {
+      const selectB = document.getElementById("b");
+      const selectS1 = document.getElementById("s1");
+      const selectS2 = document.getElementById("s2");
+      for (let i = 0; i < 9; i++) {
+        const optionB = document.createElement("option");
+        const optionS1 = document.createElement("option");
+        const optionS2 = document.createElement("option");
+        optionS2.text = optionS1.text = optionB.text = i;
+        optionS2.value = optionS1.value = optionB.value = i;
+        selectB.appendChild(optionB);
+        selectS1.appendChild(optionS1);
+        selectS2.appendChild(optionS2);
+      }
+      selectB.value = 3;
+      selectS1.value = 2;
+      selectS2.value = 3;
+      const buttonDefault = document.getElementById("bs-default");
+      buttonDefault.addEventListener("click", () => {
+        selectB.value = 3;
+        selectS1.value = 2;
+        selectS2.value = 3;
+        selectB.oninput();
+        selectS1.oninput();
+        selectS2.oninput();
+      })
+      const selectTool = document.getElementById("tool");
+      const toolNames = ["铅笔", "橡皮", "飞行器", "振荡器"];
+      for (let i = 0; i < toolNames.length; i++) {
+        const toolName = toolNames[i];
+        const optionTool = document.createElement("option");
+        optionTool.text = toolName;
+        optionTool.value = toolName;
+        selectTool.appendChild(optionTool);
+      }
+      selectTool.value = toolNames[0];
+
+      const game = new GameOfLife();
+      game.setMap(defaultMap);
+      game.run();
+    }
+    main();
+  </script>
+</body>
+
+</html>
