@@ -395,7 +395,7 @@ class GameOfLife {
     let color = [0.6, 0.2, 0.4];
     const colors = {
       "铅笔": [0.6, 0.2, 0.4],
-      "橡皮": [0.1, 0.1, 0.1]
+      "橡皮": [0.1, 0.3, 0.1]
     }
     const toolSelect = document.getElementById("tool")
     toolSelect.oninput = () => {
@@ -438,7 +438,7 @@ class GameOfLife {
       this.dx = this.x - e.offsetX;
       this.dy = this.y - e.offsetY;
       //
-      if (e.buttons === 1) {
+      if (color && e.buttons === 1) {
         drawBrush(e.offsetX, e.offsetY);
       }
     }
@@ -446,6 +446,11 @@ class GameOfLife {
     this.cvs.onmousemove = (e) => {
       switch (e.buttons) {
         case 1:
+          if (!color) {
+            this.x = e.offsetX + this.dx;
+            this.y = e.offsetY + this.dy;
+            break;
+          }
           drawBrush(e.offsetX, e.offsetY);
           break;
         case 2:
