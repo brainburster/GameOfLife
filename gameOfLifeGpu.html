@@ -10,7 +10,7 @@
   <style>
     canvas {
       background: white;
-      margin: 40px auto;
+      margin: 24px auto;
       display: block;
       border: 1px solid black;
       box-shadow: 0px 0px 10px black;
@@ -32,10 +32,18 @@
     <br>
     <label for="speed">速度:</label>
     <input type="range" id="speed" min="1" max="200" value="172">
+    <label for="brush-size">&nbsp&nbsp画刷大小:</label>
+    <input type="range" id="brush-size" min="1" max="200" value="20">
+    <label for="tool">&nbsp&nbsp切换工具：</label>
+    <select name="tool" id="tool">
+      <option value="铅笔" selected="true">铅笔</option>
+      <option value="橡皮">橡皮</option>
+    </select>
     <br>
     <br>
     <input type="button" id="debug" value="单步调试">
     <input type="button" onclick="window.location.reload()" value="重开">
+    <!-- <input type="button" id="clear" value="清屏"> -->
     <input type="button" id="back2Cpu" value="回到CPU版本">
     <br>
     <br>

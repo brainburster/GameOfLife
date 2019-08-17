@@ -90,6 +90,26 @@ void main(){
 }
 `
 
+const vsBrush = `
+precision mediump float;
+
+attribute vec2 position;
+uniform mat3 m;
+
+void main(){
+  gl_Position=vec4((m*vec3(position,1)).xy,0,1);
+}
+`
+
+const fsBrush = `
+precision mediump float;
+uniform vec3 color;
+
+void main(){
+  gl_FragColor = vec4(color,1);
+}
+`
+
 const rect = {
   positions: new Float32Array([
     -1.0, -1.0,
@@ -224,6 +244,11 @@ class GameOfLife {
     this.locRenderPos = gl.getAttribLocation(this.renderProgram, "position");
     this.locRenderUv = gl.getAttribLocation(this.renderProgram, "texCoord");
     this.locRenderM = gl.getUniformLocation(this.renderProgram, "m");
+    this.brushProgram = createProgram(gl, vsBrush, fsBrush);
+    this.locBrushPos = gl.getAttribLocation(this.brushProgram, "position");
+    this.locBrushM = gl.getUniformLocation(this.brushProgram, "m");
+    this.locBrushColor = gl.getUniformLocation(this.brushProgram, "color");
+
     //创建VAO
     //this.ext = gl.getExtension("OES_vertex_array_object");
     //this.vao = this.ext.createVertexArrayOES();
@@ -233,6 +258,7 @@ class GameOfLife {
     gl.bufferData(gl.ARRAY_BUFFER, rect.positions, gl.STATIC_DRAW);
     gl.vertexAttribPointer(this.locUpdatePos, 2, gl.FLOAT, false, 0, 0);
     gl.vertexAttribPointer(this.locRenderPos, 2, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(this.locBrushPos, 2, gl.FLOAT, false, 0, 0);
     const uvBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, rect.uvs, gl.STATIC_DRAW);
@@ -245,6 +271,8 @@ class GameOfLife {
     gl.enableVertexAttribArray(this.locUpdateUv);
     gl.enableVertexAttribArray(this.locRenderPos);
     gl.enableVertexAttribArray(this.locRenderUv);
+    gl.enableVertexAttribArray(this.locBrushPos);
+
     //this.ext.bindVertexArrayOES(null);
 
     const btnStart = document.getElementById("start");
@@ -353,19 +381,67 @@ class GameOfLife {
       this.y = e.offsetY + this.dy * (this.scale / scaleOld);
       e.preventDefault();
     }
+    document.oncontextmenu = (e) => {
+      e.preventDefault();
+    }
+
     this.cvs.oncontextmenu = (e) => {
       e.preventDefault();
+    }
+    let color = [0.6, 0.2, 0.4];
+    const colors = {
+      "铅笔": [0.6, 0.2, 0.4],
+      "橡皮": [0.1, 0.1, 0.1]
+    }
+    const toolSelect = document.getElementById("tool")
+    toolSelect.oninput = () => {
+      color = colors[toolSelect.value];
+    }
+    const brushRange = document.getElementById("brush-size");
+    const drawBrush = (mx, my) => {
+      //从屏幕坐标转化到贴图坐标，因为屏幕大小800x600而贴图大小却是1024x1024所以显得特别麻烦
+      const x = (mx - this.x) * this.cvs.width / this.scale / 800 * 1024 / 2 + 512;
+      const y = (my - this.y) * this.cvs.width / this.scale / 800 * 1024 / 2 + 512;
+      const size = brushRange.valueAsNumber;
+      const view = [
+        size * 1024 / 800 / 2, 0, 0,
+        0, size * 1024 / 800 / 2, 0,
+        x, y, 1
+      ];
+      //从贴图坐标转化到opengl坐标
+      gl.viewport(0, 0, 1024, 1024);
+      const a = 2 / 1024;
+      const b = 2 / 1024;
+      const projection = [
+        a, 0, 0,
+        0, b, 0,
+        -1, -1, 1
+      ];
+      //绘制到纹理
+      gl.useProgram(this.brushProgram);
+      const mat = m3Cross(view, projection);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbuffer);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.data.frontTexture, 0);
+
+      gl.uniformMatrix3fv(this.locBrushM, false, mat);
+      gl.uniform3fv(this.locBrushColor, color);
+      gl.drawElements(gl.TRIANGLES, rect.indices.length, gl.UNSIGNED_BYTE, 0);
+      gl.useProgram(null);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
 
     this.cvs.onmousedown = (e) => {
       this.dx = this.x - e.offsetX;
       this.dy = this.y - e.offsetY;
+      //
+      if (e.buttons === 1) {
+        drawBrush(e.offsetX, e.offsetY);
+      }
     }
     this.cvs.onmousemove = (e) => {
       switch (e.buttons) {
         case 1:
-          this.x = e.offsetX + this.dx;
-          this.y = e.offsetY + this.dy;
+          drawBrush(e.offsetX, e.offsetY);
           break;
         case 2:
           this.x = e.offsetX + this.dx;
@@ -431,26 +507,25 @@ class GameOfLife {
     const y = this.y;
     const s = this.scale;
 
-    const transMat = [
-      1, 0, 0,
-      0, 1, 0,
+    // let model = [
+    //   1, 0, 0,
+    //   0, 1, 0,
+    //   0, 0, 1
+    // ]
+
+    let view = [
+      s, 0, 0,
+      0, s, 0,
       x, y, 1
     ];
 
-    const scalMat = [
-      s, 0, 0,
-      0, s, 0,
-      0, 0, 1
-    ];
-
-    const projMat = [
+    const projection = [
       a, 0, 0,
       0, b, 0,
       -1, 1, 1
     ];
 
-    let mat = m3Cross(scalMat, transMat);
-    mat = m3Cross(mat, projMat);
+    const mat = m3Cross(view, projection);
     gl.uniformMatrix3fv(this.locRenderM, false, mat);
 
     //this.ext.bindVertexArrayOES(this.vao);
