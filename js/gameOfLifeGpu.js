@@ -276,10 +276,10 @@ class GameOfLife {
     //this.ext.bindVertexArrayOES(null);
 
     const btnStart = document.getElementById("start");
-    btnStart.value = this.pause ? "开始" : "暂停";
+    btnStart.value = this.pause ? "点击，开始" : "暂停，以绘制地图";
     btnStart.onclick = () => {
       this.pause = !this.pause;
-      btnStart.value = this.pause ? "开始" : "暂停";
+      btnStart.value = this.pause ? "点击，开始" : "暂停，以绘制地图";
     }
     const range = document.getElementById("speed");
     this.delay = 216 - range.valueAsNumber;
@@ -291,7 +291,7 @@ class GameOfLife {
       this.pause = false;
       this.update();
       this.pause = true;
-      btnStart.value = this.pause ? "开始" : "暂停";
+      btnStart.value = this.pause ? "点击，开始" : "暂停，以绘制地图";
     }
     const btnCpu = document.getElementById("back2Cpu");
     btnCpu.onclick = () => {
