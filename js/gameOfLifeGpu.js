@@ -40,24 +40,24 @@ void main(){
   if(color.r<0.2&&sum==3){
     gl_FragColor = vec4(1,1,0.3,1);
   }
-  else if(sum==2){
+  else if(sum==2||sum==3){
     if(color.r>0.21){
-      color.r-=0.005;
+      color.r-=0.0025;
     }
     if(color.g>0.21){
-      color.g-=0.02;
-    }
-    gl_FragColor = vec4(color.r,color.g,0.3,1);
-  }
-  else if(sum==3){
-    if(color.r>0.43){
-      color.r-=0.003;
-    }
-    if(color.g>0.3){
       color.g-=0.01;
     }
     gl_FragColor = vec4(color.r,color.g,0.3,1);
   }
+  //else if(sum==3){
+    //if(color.r>0.5){
+      //color.r-=0.001;
+    //}
+    //if(color.g>0.3){
+      //color.g-=0.02;
+    //}
+    //gl_FragColor = vec4(color.r,color.g,0.3,1);
+  //}
   else{
     gl_FragColor = vec4(0,0,0,1);
   }
@@ -281,10 +281,10 @@ class GameOfLife {
       this.pause = !this.pause;
       btnStart.value = this.pause ? "点击，开始" : "暂停，以绘制地图";
     }
-    const range = document.getElementById("speed");
-    this.delay = 216 - range.valueAsNumber;
-    range.oninput = () => {
-      this.delay = 216 - range.valueAsNumber;
+    const rangeSpeed = document.getElementById("speed");
+    this.delay = 216 - rangeSpeed.valueAsNumber;
+    rangeSpeed.oninput = () => {
+      this.delay = 216 - rangeSpeed.valueAsNumber;
     }
     const btnDebug = document.getElementById("debug");
     btnDebug.onclick = () => {
@@ -397,16 +397,20 @@ class GameOfLife {
       "铅笔": [0.6, 0.2, 0.4],
       "橡皮": [0.1, 0.3, 0.1]
     }
-    const toolSelect = document.getElementById("tool")
-    toolSelect.oninput = () => {
-      color = colors[toolSelect.value];
+    const selectTool = document.getElementById("tool")
+    selectTool.oninput = () => {
+      color = colors[selectTool.value];
     }
-    const brushRange = document.getElementById("brush-size");
+    const rangeBrushSize = document.getElementById("brush-size");
+    const spanBrushSize = document.getElementById("n-brush-Size");
+    rangeBrushSize.oninput = () => {
+      spanBrushSize.innerText = rangeBrushSize.value;
+    }
     const drawBrush = (mx, my) => {
       //从屏幕坐标转化到贴图坐标，因为屏幕大小800x600而贴图大小却是1024x1024所以显得特别麻烦
       const x = (mx - this.x) * this.cvs.width / this.scale / 800 * 1024 / 2 + 512;
       const y = (my - this.y) * this.cvs.width / this.scale / 800 * 1024 / 2 + 512;
-      const size = brushRange.valueAsNumber;
+      const size = rangeBrushSize.valueAsNumber;
       const view = [
         size * 1024 / 800 / 2, 0, 0,
         0, size * 1024 / 800 / 2, 0,
