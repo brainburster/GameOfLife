@@ -362,9 +362,6 @@ class GameOfLife {
     const data = new Uint8Array(1024 * 1024 * 4);
     for (let i = 0; i < data.length; i++) {
       data[i] = Math.random() + Math.random() * 0.5 + Math.random() * 0.25 * +Math.random() * 0.125 > 1.3 ? 255 : 0;
-      if (i % 4 === 3) {
-        data[i] = 255;
-      }
     }
     this.data.init(1024, 1024, data);
     this.gl.clearColor(0.1, 0.1, 0.1, 1);
