@@ -366,6 +366,8 @@ class GameOfLife {
     }
 
     //this.ext.bindVertexArrayOES(this.vao);
+
+    //缩放与移动
     this.scale = 800;
     this.x = 0;
     this.y = 0;
@@ -388,6 +390,8 @@ class GameOfLife {
     this.cvs.oncontextmenu = (e) => {
       e.preventDefault();
     }
+
+    //笔刷
     let color = [0.6, 0.2, 0.4];
     const colors = {
       "铅笔": [0.6, 0.2, 0.4],
@@ -438,6 +442,7 @@ class GameOfLife {
         drawBrush(e.offsetX, e.offsetY);
       }
     }
+
     this.cvs.onmousemove = (e) => {
       switch (e.buttons) {
         case 1:
@@ -450,6 +455,14 @@ class GameOfLife {
         default:
           break;
       }
+    }
+
+    const btnClear = document.getElementById("clear")
+    btnClear.onclick = () => {
+      gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbuffer);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.data.frontTexture, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
   }
 
