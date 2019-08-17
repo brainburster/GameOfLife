@@ -39,11 +39,21 @@
     <input type="button" id="back2Cpu" value="回到CPU版本">
     <br>
     <br>
-    <label for="load-image">加载一张图片(部分游览器可能无效)：</label>
+    <div style="display: inline-block">
+      <label for="load-image">加载一张图片(部分游览器可能无效)：</label>
+      <br>
+      <br>
+      <input type="file" id="load-image" accept="image/png, image/jpeg">
+      <input type="button" id="test-image" value="默认图片">
+    </div>
+    <div style="display: inline-block">
+      <label for="save">无法保存?,请使用chrome(或360极速模式)</label>
+      <br>
+      <br>
+      <input type="button" id="save" value="存档">
+    </div>
     <br>
     <br>
-    <input type="file" id="load-image" accept="image/png, image/jpeg">
-    <input type="button" id="test-image" value="默认图片">
   </div>
 </body>
 

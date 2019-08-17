@@ -150,6 +150,7 @@ function m3Cross(a, b) {
 }
 
 class GameOfLife {
+  //懒得搞调整大小的功能了，但是还是要写上
   constructor(w, h, cvsW = 800, cvsH = 600) {
     this.delay = 32; //ms
     this.pause = false;
@@ -310,6 +311,32 @@ class GameOfLife {
       reader.readAsDataURL(file);
     }
 
+    const btnSave = document.getElementById("save");
+    const a = document.createElement("a");
+    btnSave.onclick = (e) => {
+      this.cvs.width = 1024;
+      this.cvs.height = 1024;
+      gl.viewport(0, 0, 1024, 1024);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.useProgram(this.renderProgram);
+      gl.bindTexture(gl.TEXTURE_2D, this.data.frontTexture);
+      gl.uniformMatrix3fv(this.locRenderM, false, [
+        1, 0, 0,
+        0, -1, 0,
+        0, 0, 1
+      ]);
+      //this.ext.bindVertexArrayOES(this.vao);
+      gl.drawElements(gl.TRIANGLES, rect.indices.length, gl.UNSIGNED_BYTE, 0);
+      //
+      const image = this.cvs.toDataURL("image/png");
+      a.download = "存档.jpg";
+      a.href = image;
+      a.click();
+      this.cvs.width = 800;
+      this.cvs.height = 600;
+      gl.viewport(0, 0, 800, 600);
+    }
+
     //this.ext.bindVertexArrayOES(this.vao);
     this.scale = 800;
     this.x = 0;
@@ -369,7 +396,7 @@ class GameOfLife {
   }
 
   handleInput() {
-
+    //todo: 将处理输入全部放到游戏循环中
   }
 
   update() {
