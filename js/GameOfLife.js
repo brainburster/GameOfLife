@@ -381,22 +381,48 @@ class GameOfLife {
       this.bHeatDeath = checkboxHD.checked;
     };
 
-    this.selectB = document.getElementById("b");
-    this.selectS1 = document.getElementById("s1");
-    this.selectS2 = document.getElementById("s2");
+    this.textB = document.getElementById("b");
+    this.textS = document.getElementById("s");
 
-    this.sb = 3;
-    this.ss1 = 2;
-    this.ss2 = 3;
+    this.b = [3];
+    this.s = [2, 3];
 
-    this.selectB.oninput = () => {
-      this.sb = this.selectB.selectedIndex;
+    this.textB.onchange = () => {
+      let reg = /^[0-9]*$/;
+      if (!reg.test(this.textB.value)) {
+        this.textB.value = this.b.join("");
+        return;
+      }
+      // reg = /(.)\1+/ig;
+      // this.textB.value = this.textB.value.replace(reg, "$1");
+      this.b.length = 0;
+      const array = this.textB.value.split("");
+      for (let i = 0; i < array.length; i++) {
+        const ch = array[i];
+        if (this.b.indexOf(ch) < 0) {
+          this.b.push(ch);
+        }
+      }
+      this.b.sort();
+      this.textB.value = this.b.join("");
     }
-    this.selectS1.oninput = () => {
-      this.ss1 = this.selectS1.selectedIndex;
-    }
-    this.selectS2.oninput = () => {
-      this.ss2 = this.selectS2.selectedIndex;
+
+    this.textS.onchange = () => {
+      const reg = /^[0-9]*$/;
+      if (!reg.test(this.textS.value)) {
+        this.textS.value = this.s.join("");
+        return;
+      }
+      this.s.length = 0;
+      const array = this.textS.value.split("");
+      for (let i = 0; i < array.length; i++) {
+        const ch = array[i];
+        if (this.s.indexOf(ch) < 0) {
+          this.s.push(ch);
+        }
+      }
+      this.s.sort();
+      this.textS.value = this.s.join("");
     }
 
     this.canvas.style.cursor = "pointer";
@@ -508,10 +534,10 @@ class GameOfLife {
     for (let i = 0; i < this.data.w; i++) {
       for (let j = 0; j < this.data.h; j++) {
         let adj = this.getCountAdjacency(i, j);
-        if (adj === this.sb) { //b3
+        if (this.b.some(ch => ch == adj)) { //b3
           //出生
           this.data.setData(i, j, 1);
-        } else if (adj === this.ss1 || adj === this.ss2) { //s23
+        } else if (this.s.some(ch => ch == adj)) { //s23
           //不变
         } else {
           //死亡

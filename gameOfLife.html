@@ -38,41 +38,26 @@
     <span>宇宙大小：</span>
     <input type="range" name="map-size" id="map-size" min="0" max="3" value="2" step="1">
     <span>&nbsp&nbsp宇宙法则(B3/S23)： B</span>
-    <select name="b" id="b"></select>
+    <input type="text" id="b" value="3" οnkeyup="value=value.replace(/[^\d]/g,'')" size="4">
     <span>/S</span>
-    <select name="s1" id="s1"></select>
-    <select name="s2" id="s2"></select>
+    <input type="text" id="s" value="23" οnkeyup="value=value.replace(/[^\d]/g,'')" size="4">
     <button id="bs-default">恢复默认</button>
     <br>
     <br>
   </div>
   <script>
     function main() {
-      const selectB = document.getElementById("b");
-      const selectS1 = document.getElementById("s1");
-      const selectS2 = document.getElementById("s2");
-      for (let i = 0; i < 9; i++) {
-        const optionB = document.createElement("option");
-        const optionS1 = document.createElement("option");
-        const optionS2 = document.createElement("option");
-        optionS2.text = optionS1.text = optionB.text = i;
-        optionS2.value = optionS1.value = optionB.value = i;
-        selectB.appendChild(optionB);
-        selectS1.appendChild(optionS1);
-        selectS2.appendChild(optionS2);
-      }
-      selectB.value = 3;
-      selectS1.value = 2;
-      selectS2.value = 3;
       const buttonDefault = document.getElementById("bs-default");
+      const txtB = document.getElementById("b");
+      const txtS = document.getElementById("s");
+
       buttonDefault.addEventListener("click", () => {
-        selectB.value = 3;
-        selectS1.value = 2;
-        selectS2.value = 3;
-        selectB.oninput();
-        selectS1.oninput();
-        selectS2.oninput();
+        txtB.value = 3;
+        txtS.value = 23;
+        txtB.onchange();
+        txtS.onchange();
       })
+
       const selectTool = document.getElementById("tool");
       const toolNames = ["铅笔", "橡皮", "飞行器", "振荡器"];
       for (let i = 0; i < toolNames.length; i++) {
@@ -82,6 +67,7 @@
         optionTool.value = toolName;
         selectTool.appendChild(optionTool);
       }
+
       selectTool.value = toolNames[0];
 
       const game = new GameOfLife();
