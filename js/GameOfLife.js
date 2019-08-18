@@ -111,7 +111,7 @@ const tools = {
       }
     }
   },
-  "橡皮": {
+  "橡皮(右键)": {
     onmousedown: (game, x, y, r) => {
       for (let i = -r; i <= r; i++) {
         for (let j = -r; j <= r; j++) {
@@ -177,6 +177,23 @@ const tools = {
         [1, 1, 1, 0],
         [0, 0, 0, 0],
       ],
+      // [
+      //   [0, 0, 0, 1, 1, 1, 0, 0, 0],
+      //   [0, 0, 1, 0, 0, 0, 1, 0, 0],
+      //   [0, 1, 0, 0, 0, 0, 0, 1, 0],
+      //   [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      //   [1, 0, 0, 0, 0, 0, 0, 0, 1],
+      //   [1, 0, 0, 0, 0, 0, 0, 0, 1],
+      //   [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      //   [0, 1, 0, 0, 0, 0, 0, 1, 0],
+      //   [0, 0, 1, 0, 0, 0, 1, 0, 0],
+      //   [0, 0, 0, 1, 1, 1, 0, 0, 0]
+      // ],
+      [
+        [1, 1, 1, 1, 1, 1, 1, 1, ],
+        [1, 0, 1, 1, 1, 1, 0, 1, ],
+        [1, 1, 1, 1, 1, 1, 1, 1, ]
+      ],
       [
         [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -191,12 +208,20 @@ const tools = {
         [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
-      ],
-      //懒得分类了
-      defaultMap,
+      ]
     ],
     onclick: (game, x, y, r) => {
       const map = tools["振荡器"].maps[r];
+      for (let j = 0; j < map.length; j++) {
+        for (let i = 0; i < map[j].length; i++) {
+          game.data.setData(x + i - (map[j].length >>> 1), y + j - (map.length >>> 1), map[j][i]);
+        }
+      }
+    }
+  },
+  "滑翔者枪": {
+    onclick: (game, x, y, r) => {
+      const map = defaultMap;
       for (let j = 0; j < map.length; j++) {
         for (let i = 0; i < map[j].length; i++) {
           game.data.setData(x + i - (map[j].length >>> 1), y + j - (map.length >>> 1), map[j][i]);
@@ -243,25 +268,51 @@ class GameOfLife {
 
     const brushSizeRange = document.getElementById("brush-size");
 
-    this.canvas.onclick = (e) => {
-      const x = Math.floor(e.offsetX / this.cellSize);
-      const y = Math.floor(e.offsetY / this.cellSize);
-      tools[selectTool.value].onclick && tools[selectTool.value].onclick(this, x, y, brushSizeRange.valueAsNumber >>> 1);
+    this.canvas.onwheel = (e) => {
+      let size = brushSizeRange.valueAsNumber;
+      size += e.deltaY / 50;
+      brushSizeRange.value = Math.min(10, size, Math.max(2, size));
     }
+
+    this.canvas.oncontextmenu = (e) => {
+      e.preventDefault();
+    }
+
+    // this.canvas.onclick = (e) => {
+    //   const x = Math.floor(e.offsetX / this.cellSize);
+    //   const y = Math.floor(e.offsetY / this.cellSize);
+    //   tools[selectTool.value].onclick && tools[selectTool.value].onclick(this, x, y, brushSizeRange.valueAsNumber >>> 1);
+    // }
 
     this.canvas.onmousedown = (e) => {
       const x = Math.floor(e.offsetX / this.cellSize);
       const y = Math.floor(e.offsetY / this.cellSize);
-      tools[selectTool.value].onmousedown && tools[selectTool.value].onmousedown(this, x, y, brushSizeRange.valueAsNumber >>> 1);
+      switch (e.buttons) {
+        case 2:
+          tools["橡皮(右键)"].onmousedown(this, x, y, brushSizeRange.valueAsNumber >>> 1);
+          break;
+        case 1:
+          tools[selectTool.value].onmousedown && tools[selectTool.value].onmousedown(this, x, y, brushSizeRange.valueAsNumber >>> 1);
+          tools[selectTool.value].onclick && tools[selectTool.value].onclick(this, x, y, brushSizeRange.valueAsNumber >>> 1);
+          break;
+        default:
+          break;
+      }
     }
 
     this.canvas.onmousemove = (e) => {
-      if (e.buttons !== 1) {
-        return;
-      }
       const x = Math.floor(e.offsetX / this.cellSize);
       const y = Math.floor(e.offsetY / this.cellSize);
-      tools[selectTool.value].onmousedown && tools[selectTool.value].onmousedown(this, x, y, brushSizeRange.valueAsNumber >>> 1);
+      switch (e.buttons) {
+        case 2:
+          tools["橡皮(右键)"].onmousedown(this, x, y, brushSizeRange.valueAsNumber >>> 1);
+          break;
+        case 1:
+          tools[selectTool.value].onmousedown && tools[selectTool.value].onmousedown(this, x, y, brushSizeRange.valueAsNumber >>> 1);
+          break;
+        default:
+          break;
+      }
     }
 
     this.canvas.ontouchmove = (e) => {

@@ -36,7 +36,7 @@
     <br>
     <br>
     <span>宇宙大小：</span>
-    <input type="range" name="map-size" id="map-size" min="0" max="3" value="2" step="1">
+    <input type="range" name="map-size" id="map-size" min="0" max="3" value="1" step="1">
     <span>&nbsp&nbsp宇宙法则(B3/S23)： B</span>
     <input type="text" id="b" value="3" οnkeyup="value=value.replace(/[^\d]/g,'')" size="4">
     <span>/S</span>
@@ -59,7 +59,7 @@
       })
 
       const selectTool = document.getElementById("tool");
-      const toolNames = ["铅笔", "橡皮", "飞行器", "振荡器"];
+      const toolNames = ["铅笔", "橡皮(右键)", "飞行器", "振荡器", "滑翔者枪"];
       for (let i = 0; i < toolNames.length; i++) {
         const toolName = toolNames[i];
         const optionTool = document.createElement("option");
