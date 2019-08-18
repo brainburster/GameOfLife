@@ -21,7 +21,7 @@ int isLive(vec2 direction){
   if(color.b>0.95&&color.r>0.95&&color.g>0.95){
     return 0;
   }
-  else if(color.r>0.2){
+  else if(color.r>0.1){
     return 1;
   }
   return 0;
@@ -37,27 +37,20 @@ void main(){
   isLive(vec2(-1,-1))+
   isLive(vec2(-1,0));
   vec3 color = texture2D(sampler,uv).rgb;
-  if(color.r<0.2&&sum==3){
+  if(color.r<0.1&&sum==3){
     gl_FragColor = vec4(1,1,0.3,1);
   }
-  else if(sum==2||sum==3){
-    if(color.r>0.21){
-      color.r-=0.0025;
+  else if(color.r>0.2&&(sum==2||sum==3)){
+    color.r-=0.0025;
+    if(color.r<0.21){
+      color.r=0.21;
     }
-    if(color.g>0.21){
-      color.g-=0.01;
+    color.g-=0.01;
+    if(color.g<0.21){
+      color.g=0.21;
     }
     gl_FragColor = vec4(color.r,color.g,0.3,1);
   }
-  //else if(sum==3){
-    //if(color.r>0.5){
-      //color.r-=0.001;
-    //}
-    //if(color.g>0.3){
-      //color.g-=0.02;
-    //}
-    //gl_FragColor = vec4(color.r,color.g,0.3,1);
-  //}
   else{
     gl_FragColor = vec4(0,0,0,1);
   }
@@ -282,9 +275,9 @@ class GameOfLife {
       btnStart.value = this.pause ? "点击，开始" : "暂停，以绘制地图";
     }
     const rangeSpeed = document.getElementById("speed");
-    this.delay = 216 - rangeSpeed.valueAsNumber;
+    this.delay = 205 - rangeSpeed.valueAsNumber;
     rangeSpeed.oninput = () => {
-      this.delay = 216 - rangeSpeed.valueAsNumber;
+      this.delay = 205 - rangeSpeed.valueAsNumber;
     }
     const btnDebug = document.getElementById("debug");
     btnDebug.onclick = () => {
@@ -369,8 +362,8 @@ class GameOfLife {
 
     //缩放与移动
     this.scale = 800;
-    this.x = 0;
-    this.y = 0;
+    this.x = 400;
+    this.y = 300;
     this.dx = 0;
     this.dy = 0;
     this.cvs.onwheel = (e) => {
@@ -401,6 +394,7 @@ class GameOfLife {
     selectTool.oninput = () => {
       color = colors[selectTool.value];
     }
+
     const rangeBrushSize = document.getElementById("brush-size");
     const spanBrushSize = document.getElementById("n-brush-Size");
     rangeBrushSize.oninput = () => {
@@ -458,6 +452,10 @@ class GameOfLife {
           drawBrush(e.offsetX, e.offsetY);
           break;
         case 2:
+          this.x = e.offsetX + this.dx;
+          this.y = e.offsetY + this.dy;
+          break;
+        case 4:
           this.x = e.offsetX + this.dx;
           this.y = e.offsetY + this.dy;
           break;
@@ -563,7 +561,7 @@ class GameOfLife {
       const elapsed = current - previous;
       previous = current;
       lag += elapsed;
-      if (lag < 500) {
+      if (lag < 400) {
         this.handleInput();
         while (lag >= this.delay) {
           this.update();
@@ -572,6 +570,7 @@ class GameOfLife {
 
         this.render();
       } else {
+        console.log("计算超时");
         lag = 0;
       }
 
