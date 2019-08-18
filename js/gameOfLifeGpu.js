@@ -15,9 +15,11 @@ precision mediump float;
 
 varying vec2 uv;
 uniform sampler2D sampler;
+uniform float setting;
 
 int isLive(vec2 direction){
-  vec3 color = texture2D(sampler,((gl_FragCoord.xy+direction)/vec2(1024,1024))).rgb;
+  //vec3 color = texture2D(sampler,((gl_FragCoord.xy+direction)/vec2(1024,1024))).rgb;
+  vec3 color = texture2D(sampler,uv+direction/vec2(1024,1024)).rgb;
   if(color.b>0.95&&color.r>0.95&&color.g>0.95){
     return 0;
   }
@@ -38,18 +40,28 @@ void main(){
   isLive(vec2(-1,0));
   vec3 color = texture2D(sampler,uv).rgb;
   if(color.r<0.1&&sum==3){
-    gl_FragColor = vec4(1,1,0.3,1);
+    if(setting>0.5){
+      gl_FragColor = vec4(1,1,0.3,1);
+    }
+    else{
+      gl_FragColor = vec4(0.8,0.8,0.8,1);
+    }
   }
   else if(color.r>0.2&&(sum==2||sum==3)){
-    color.r-=0.0025;
-    if(color.r<0.21){
-      color.r=0.21;
+    if(setting>0.5){
+      color.r-=0.0025;
+      if(color.r<0.21){
+        color.r=0.21;
+      }
+      color.g-=0.01;
+      if(color.g<0.21){
+        color.g=0.21;
+      }
+      gl_FragColor = vec4(color.r,color.g,0.3,1);
     }
-    color.g-=0.01;
-    if(color.g<0.21){
-      color.g=0.21;
+    else{
+      gl_FragColor = vec4(0.8,0.8,0.8,1);
     }
-    gl_FragColor = vec4(color.r,color.g,0.3,1);
   }
   else{
     gl_FragColor = vec4(0,0,0,1);
@@ -166,6 +178,8 @@ class GameOfLife {
   //懒得搞调整大小的功能了，但是还是要写上
   constructor(w, h, cvsW = 800, cvsH = 600) {
     this.delay = 32; //ms
+    this.heatDeath = true;
+    this.border = true;
     this.pause = false;
     this.cvs = document.createElement("canvas");
     this.gl = this.cvs.getContext("webgl2") || this.cvs.getContext("webgl");
@@ -177,7 +191,7 @@ class GameOfLife {
     const gl = this.gl;
     this.fbuffer = gl.createFramebuffer();
     const that = this;
-    this.data = {
+    this.textures = {
       frontTexture: gl.createTexture(),
       backTexture: gl.createTexture(),
       swapBuffer: function () {
@@ -223,8 +237,18 @@ class GameOfLife {
         gl.drawElements(gl.TRIANGLES, rect.indices.length, gl.UNSIGNED_BYTE, 0);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         gl.bindTexture(gl.TEXTURE_2D, null);
-
         gl.bindBuffer
+      },
+      repat: function (bRepet) {
+        const wrapSetting = bRepet ? gl.REPEAT : gl.CLAMP_TO_EDGE;
+        gl.bindTexture(gl.TEXTURE_2D, this.frontTexture);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapSetting);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapSetting);
+        gl.bindTexture(gl.TEXTURE_2D, this.backTexture);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapSetting);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapSetting);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+
       }
     }
 
@@ -233,6 +257,7 @@ class GameOfLife {
     this.updateProgram = createProgram(gl, vsUpdate, fsUpdate);
     this.locUpdatePos = gl.getAttribLocation(this.updateProgram, "position");
     this.locUpdateUv = gl.getAttribLocation(this.updateProgram, "texCoord");
+    this.locUpdateSetting = gl.getUniformLocation(this.updateProgram, "setting");
     this.renderProgram = createProgram(gl, vsRender, fsRender);
     this.locRenderPos = gl.getAttribLocation(this.renderProgram, "position");
     this.locRenderUv = gl.getAttribLocation(this.renderProgram, "texCoord");
@@ -241,7 +266,6 @@ class GameOfLife {
     this.locBrushPos = gl.getAttribLocation(this.brushProgram, "position");
     this.locBrushM = gl.getUniformLocation(this.brushProgram, "m");
     this.locBrushColor = gl.getUniformLocation(this.brushProgram, "color");
-
     //创建VAO
     //this.ext = gl.getExtension("OES_vertex_array_object");
     //this.vao = this.ext.createVertexArrayOES();
@@ -267,6 +291,16 @@ class GameOfLife {
     gl.enableVertexAttribArray(this.locBrushPos);
 
     //this.ext.bindVertexArrayOES(null);
+
+    const cbxHeatDeath = document.getElementById("heat-death");
+    const cbxBorder = document.getElementById("border");
+
+    cbxHeatDeath.oninput = () => {
+      this.heatDeath = cbxHeatDeath.checked;
+    }
+    cbxBorder.oninput = () => {
+      this.border = cbxBorder.checked;
+    }
 
     const btnStart = document.getElementById("start");
     btnStart.value = this.pause ? "点击，开始" : "暂停，以绘制地图";
@@ -300,7 +334,7 @@ class GameOfLife {
       this.y = 300;
       image.crossOrigin = "";
       image.onload = () => {
-        this.data.load(image);
+        this.textures.load(image);
         this.render();
         btnStart.value = this.pause ? "开始" : "暂停";
       }
@@ -321,7 +355,7 @@ class GameOfLife {
       const image = new Image();
       image.crossOrigin = "";
       image.onload = () => {
-        this.data.load(image);
+        this.textures.load(image);
         this.render();
         btnStart.value = this.pause ? "开始" : "暂停";
       }
@@ -340,7 +374,7 @@ class GameOfLife {
       gl.viewport(0, 0, 1024, 1024);
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.useProgram(this.renderProgram);
-      gl.bindTexture(gl.TEXTURE_2D, this.data.frontTexture);
+      gl.bindTexture(gl.TEXTURE_2D, this.textures.frontTexture);
       gl.uniformMatrix3fv(this.locRenderM, false, [
         1, 0, 0,
         0, -1, 0,
@@ -423,7 +457,7 @@ class GameOfLife {
       gl.useProgram(this.brushProgram);
       const mat = m3Cross(view, projection);
       gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbuffer);
-      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.data.frontTexture, 0);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.textures.frontTexture, 0);
 
       gl.uniformMatrix3fv(this.locBrushM, false, mat);
       gl.uniform3fv(this.locBrushColor, color);
@@ -467,7 +501,7 @@ class GameOfLife {
     const btnClear = document.getElementById("clear")
     btnClear.onclick = () => {
       gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbuffer);
-      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.data.frontTexture, 0);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.textures.frontTexture, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
@@ -486,7 +520,7 @@ class GameOfLife {
     for (let i = 0; i < data.length; i++) {
       data[i] = Math.random() + Math.random() * 0.5 + Math.random() * 0.25 * +Math.random() * 0.125 > 1.3 ? 255 : 0;
     }
-    this.data.init(1024, 1024, data);
+    this.textures.init(1024, 1024, data);
     this.gl.clearColor(0.1, 0.1, 0.1, 1);
     this.gl.disable(this.gl.DEPTH_TEST);
   }
@@ -503,16 +537,18 @@ class GameOfLife {
     const gl = this.gl;
     gl.viewport(0, 0, 1024, 1024);
     gl.useProgram(this.updateProgram);
-    gl.bindTexture(gl.TEXTURE_2D, this.data.frontTexture);
+    gl.uniform1f(this.locUpdateSetting, this.heatDeath);
+    this.textures.repat(this.border);
+    gl.bindTexture(gl.TEXTURE_2D, this.textures.frontTexture);
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbuffer);
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.data.backTexture, 0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.textures.backTexture, 0);
 
     //this.ext.bindVertexArrayOES(this.vao);
     gl.drawElements(gl.TRIANGLES, rect.indices.length, gl.UNSIGNED_BYTE, 0);
     // this.ext.bindVertexArrayOES(null);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.bindTexture(gl.TEXTURE_2D, null);
-    this.data.swapBuffer();
+    this.textures.swapBuffer();
   }
 
   render() {
@@ -520,7 +556,7 @@ class GameOfLife {
     gl.viewport(0, 0, 800, 600);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.useProgram(this.renderProgram);
-    gl.bindTexture(gl.TEXTURE_2D, this.data.frontTexture);
+    gl.bindTexture(gl.TEXTURE_2D, this.textures.frontTexture);
     const a = 2 / this.cvs.width;
     const b = -2 / this.cvs.height; //* 4 / 3;
     const x = this.x;
