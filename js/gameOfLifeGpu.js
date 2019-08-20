@@ -77,10 +77,12 @@ attribute vec2 position;
 attribute vec2 texCoord;
 uniform mat3 m;
 varying vec2 uv;
+varying float flag;
 
 void main(){
   gl_Position=vec4((m*vec3(position,1)).xy,0,1);
   uv=texCoord;
+  flag = m[0][0];
 }
 `
 
@@ -89,8 +91,16 @@ precision mediump float;
 
 varying vec2 uv;
 uniform sampler2D sampler;
+varying float flag;
 
 void main(){
+  vec2 tmp = fract(uv*vec2(1024,1024));
+  if(flag>7.0){
+    if(tmp.x<0.13||tmp.y<0.13){
+      gl_FragColor = vec4(0.1,0.1,0.1,1);
+      return;
+    }
+  }
   gl_FragColor = texture2D(sampler,uv);
 }
 `
