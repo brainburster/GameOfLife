@@ -95,9 +95,9 @@ varying float flag;
 
 void main(){
   vec2 tmp = fract(uv*vec2(1024,1024));
-  if(flag>7.0){
-    if(tmp.x<0.13||tmp.y<0.13){
-      gl_FragColor = vec4(0.1,0.1,0.1,1);
+  if(flag>7.5){
+    if(tmp.x<0.2||tmp.y<0.2){
+      gl_FragColor = vec4(0.05,0.05,0.05,1);
       return;
     }
   }
@@ -414,7 +414,7 @@ class GameOfLife {
       this.dx = this.x - e.offsetX;
       this.dy = this.y - e.offsetY;
       const scaleOld = this.scale;
-      this.scale += e.deltaY;
+      this.scale += e.deltaY * this.scale * 0.001;
       this.scale = Math.max(200, Math.min(this.scale, 12800));
       this.x = e.offsetX + this.dx * (this.scale / scaleOld);
       this.y = e.offsetY + this.dy * (this.scale / scaleOld);
