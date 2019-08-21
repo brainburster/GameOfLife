@@ -24,16 +24,18 @@
 </head>
 
 <body style="user-select:none;">
-  <h1 style="text-align:center;margin-top: 20px;">GPU版本还在开发中,很多功能还没添加</h1>
+  <h1 style="text-align:center;margin-top: 20px;">左键铅笔，中键橡皮, 右键拖动，滚轮缩放</h1>
   <div id="game"></div>
   <div id="control">
     <input type="button" id="start" value="暂停/开始">
+    <input type="button" id="debug" value="单帧调试">
+    <input type="button" id="clear" value="清屏">
     <br>
     <br>
     <label for="speed">速度:</label>
-    <input type="range" id="speed" min="1" max="200" value="172">
-    <label for="brush-size">&nbsp&nbsp画刷大小:<span id="n-brush-Size">20</span></label>
-    <input type="range" id="brush-size" min="1" max="400" value="20">
+    <input type="range" id="speed" min="1" max="200" value="185">
+    <label for="brush-size">&nbsp&nbsp画刷大小:<span id="n-brush-Size">40</span></label>
+    <input type="range" id="brush-size" min="1" max="400" value="40">
     <label for="tool">&nbsp&nbsp切换工具：</label>
     <select name="tool" id="tool">
       <option value="铅笔" selected="true">铅笔</option>
@@ -42,13 +44,11 @@
     </select>
     <br>
     <br>
-    <input type="button" id="debug" value="单帧调试">
     <input type="button" onclick="window.location.reload()" value="重开">
     <label for="heat-death">&nbsp&nbsp热寂效果：</label>
     <input type="checkbox" id="heat-death" checked="true">
     <label for="border">&nbsp&nbsp有限无边：</label>
     <input type="checkbox" id="border" checked="true">
-    <input type="button" id="clear" value="清屏">
     <input type="button" id="back2Cpu" value="回到CPU版本">
     <br>
     <br>

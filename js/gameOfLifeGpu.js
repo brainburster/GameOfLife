@@ -41,7 +41,7 @@ void main(){
   vec3 color = texture2D(sampler,uv).rgb;
   if(color.r<0.1&&sum==3){
     if(setting>0.5){
-      gl_FragColor = vec4(1,1,0.3,1);
+      gl_FragColor = vec4(0.9,0.9,0.9,1);
     }
     else{
       gl_FragColor = vec4(0.8,0.8,0.8,1);
@@ -49,15 +49,20 @@ void main(){
   }
   else if(color.r>0.2&&(sum==2||sum==3)){
     if(setting>0.5){
-      color.r-=0.0025;
+      color.r-=0.002;
       if(color.r<0.21){
         color.r=0.21;
       }
-      color.g-=0.01;
+      color.g-=0.02;
       if(color.g<0.21){
         color.g=0.21;
       }
-      gl_FragColor = vec4(color.r,color.g,0.3,1);
+      color.b-=0.1;
+      if(color.b<0.21){
+        color.b=0.21;
+      }
+      
+      gl_FragColor = vec4(color.r,color.g,color.b,1);
     }
     else{
       gl_FragColor = vec4(0.8,0.8,0.8,1);
@@ -96,7 +101,7 @@ varying float flag;
 void main(){
   vec2 tmp = fract(uv*vec2(1024,1024));
   if(flag>7.5){
-    if(tmp.x<0.2||tmp.y<0.2){
+    if(tmp.x<0.1||tmp.y<0.1||tmp.x>0.9||tmp.y>0.9){
       gl_FragColor = vec4(0.05,0.05,0.05,1);
       return;
     }
@@ -415,7 +420,7 @@ class GameOfLife {
       this.dy = this.y - e.offsetY;
       const scaleOld = this.scale;
       this.scale += e.deltaY * this.scale * 0.001;
-      this.scale = Math.max(200, Math.min(this.scale, 12800));
+      this.scale = Math.max(200, Math.min(this.scale, 20000));
       this.x = e.offsetX + this.dx * (this.scale / scaleOld);
       this.y = e.offsetY + this.dy * (this.scale / scaleOld);
       e.preventDefault();
@@ -429,11 +434,11 @@ class GameOfLife {
     }
 
     //笔刷
-    let color = [0.6, 0.2, 0.4];
     const colors = {
       "铅笔": [0.6, 0.2, 0.4],
-      "橡皮": [0.1, 0.3, 0.1]
+      "橡皮": [0.1, 0.1, 0.1]
     }
+    let color = colors["铅笔"];
     const selectTool = document.getElementById("tool")
     selectTool.oninput = () => {
       color = colors[selectTool.value];
@@ -444,7 +449,7 @@ class GameOfLife {
     rangeBrushSize.oninput = () => {
       spanBrushSize.innerText = rangeBrushSize.value;
     }
-    const drawBrush = (mx, my) => {
+    const drawBrush = (mx, my, tool) => {
       //从屏幕坐标转化到贴图坐标，因为屏幕大小800x600而贴图大小却是1024x1024所以显得特别麻烦
       const x = (mx - this.x) * this.cvs.width / this.scale / 800 * 1024 / 2 + 512;
       const y = (my - this.y) * this.cvs.width / this.scale / 800 * 1024 / 2 + 512;
@@ -470,7 +475,7 @@ class GameOfLife {
       gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.textures.frontTexture, 0);
 
       gl.uniformMatrix3fv(this.locBrushM, false, mat);
-      gl.uniform3fv(this.locBrushColor, color);
+      gl.uniform3fv(this.locBrushColor, colors[tool] || color);
       gl.drawElements(gl.TRIANGLES, rect.indices.length, gl.UNSIGNED_BYTE, 0);
       gl.useProgram(null);
       gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -482,6 +487,8 @@ class GameOfLife {
       //
       if (color && e.buttons === 1) {
         drawBrush(e.offsetX, e.offsetY);
+      } else if (e.buttons === 4) {
+        drawBrush(e.offsetX, e.offsetY, "橡皮");
       }
     }
 
@@ -500,12 +507,17 @@ class GameOfLife {
           this.y = e.offsetY + this.dy;
           break;
         case 4:
-          this.x = e.offsetX + this.dx;
-          this.y = e.offsetY + this.dy;
+          if (!color) {
+            this.x = e.offsetX + this.dx;
+            this.y = e.offsetY + this.dy;
+            break;
+          }
+          drawBrush(e.offsetX, e.offsetY, "橡皮");
           break;
         default:
           break;
       }
+      e.preventDefault();
     }
 
     const btnClear = document.getElementById("clear")
