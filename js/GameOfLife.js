@@ -327,59 +327,14 @@ class GameOfLife {
       e.preventDefault();
     }
 
-    window.onkeydown = (e) => {
-      switch (e.key) {
-        case "z":
-          if (this.history.length > 7) {
-            this.data = this.history.pop();
-          }
-          break;
-        case "x":
-          this.pause = false;
-          this.update();
-          this.pause = true;
-          this.draw();
-          if (this.pause) {
-            pauseBtn.innerHTML = "点击，以开始";
-          } else {
-            pauseBtn.innerHTML = "暂停，以绘制地图";
-          }
-          break;
-        case "r":
-          for (let i = 0; i < this.data.w; i++) {
-            for (let j = 0; j < this.data.h; j++) {
-              let value = Math.random() > 0.33 ? 0 : 1;
-              this.data.setData(i, j, value);
-            }
-          }
-          this.dataOld = this.data.copy();
-          this.history.length = 0;
-          break;
-        case "c":
-          this.data.clear();
-          this.dataOld.clear();
-          this.history.length = 0;
-          break;
-        case " ":
-          this.pause = !this.pause;
-          if (this.pause) {
-            pauseBtn.innerHTML = "点击，以开始";
-          } else {
-            pauseBtn.innerHTML = "暂停，以绘制地图";
-          }
-          break;
-        default:
-          break;
-      }
-    }
-
     const undoBtn = document.createElement("button");
     undoBtn.innerHTML = `撤销(z)`;
     undoBtn.onclick = () => {
-      if (this.pause) {
-        if (this.history.length > 7) {
-          this.data = this.history.pop();
-        }
+      if (!this.pause) {
+        this.pause = true;
+      }
+      if (this.history.length > 7) {
+        this.data = this.history.pop();
       }
     }
 
@@ -465,6 +420,39 @@ class GameOfLife {
     checkboxHD.oninput = () => {
       this.bHeatDeath = checkboxHD.checked;
     };
+
+    window.onkeydown = (e) => {
+      switch (e.key) {
+        case "z":
+          undoBtn.onclick();
+          break;
+        case "x":
+          debugBtn.onclick();
+          break;
+        case "r":
+          randomBtn.onclick();
+          break;
+        case "c":
+          clearBtn.onclick();
+          break;
+        case "s":
+          pauseBtn.onclick();
+          break;
+        case "g":
+          GPUBtn.onclick();
+        case "h":
+          checkboxHD.checked = !checkboxHD.checked;
+          checkboxHD.oninput();
+        case "t":
+          if (selectTool.selectedIndex < 4) {
+            selectTool.selectedIndex += 1;
+          } else {
+            selectTool.selectedIndex = 0;
+          }
+          default:
+            break;
+      }
+    }
 
     this.textB = document.getElementById("b");
     this.textS = document.getElementById("s");
