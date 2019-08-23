@@ -440,17 +440,20 @@ class GameOfLife {
           break;
         case "g":
           GPUBtn.onclick();
+          break;
         case "h":
           checkboxHD.checked = !checkboxHD.checked;
           checkboxHD.oninput();
+          break;
         case "t":
           if (selectTool.selectedIndex < 4) {
             selectTool.selectedIndex += 1;
           } else {
             selectTool.selectedIndex = 0;
           }
-          default:
-            break;
+          break;
+        default:
+          break;
       }
     }
 

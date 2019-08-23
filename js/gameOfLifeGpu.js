@@ -318,10 +318,10 @@ class GameOfLife {
     }
 
     const btnStart = document.getElementById("start");
-    btnStart.value = this.pause ? "点击，开始" : "暂停，以绘制地图";
+    btnStart.value = this.pause ? "开始(s)" : "暂停(s)";
     btnStart.onclick = () => {
       this.pause = !this.pause;
-      btnStart.value = this.pause ? "点击，开始" : "暂停，以绘制地图";
+      btnStart.value = this.pause ? "开始(s)" : "暂停(s)";
     }
     const rangeSpeed = document.getElementById("speed");
     this.delay = 205 - rangeSpeed.valueAsNumber;
@@ -333,7 +333,7 @@ class GameOfLife {
       this.pause = false;
       this.update();
       this.pause = true;
-      btnStart.value = this.pause ? "点击，开始" : "暂停，以绘制地图";
+      btnStart.value = this.pause ? "开始(s)" : "暂停(s)";
     }
     const btnCpu = document.getElementById("back2Cpu");
     btnCpu.onclick = () => {
@@ -351,7 +351,7 @@ class GameOfLife {
       image.onload = () => {
         this.textures.load(image);
         this.render();
-        btnStart.value = this.pause ? "开始" : "暂停";
+        btnStart.value = this.pause ? "开始(s)" : "暂停(s)";
       }
       image.src = "./icon.png";
     }
@@ -372,7 +372,7 @@ class GameOfLife {
       image.onload = () => {
         this.textures.load(image);
         this.render();
-        btnStart.value = this.pause ? "开始" : "暂停";
+        btnStart.value = this.pause ? "开始(s)" : "暂停(s)";
       }
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -526,6 +526,42 @@ class GameOfLife {
       gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.textures.frontTexture, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    }
+
+
+    window.onkeydown = (e) => {
+      switch (e.key) {
+        case "z":
+          this.textures.swapBuffer();
+          break;
+        case "x":
+          btnDebug.onclick();
+          break;
+        case "r":
+          window.location.reload();
+          break;
+        case "Delete":
+        case "Backspace":
+          btnClear.onclick();
+          break;
+        case "s":
+          btnStart.onclick();
+          break;
+        case "h":
+          cbxHeatDeath.checked = !cbxHeatDeath.checked;
+          cbxHeatDeath.oninput();
+          break;
+        case "t":
+          if (selectTool.selectedIndex < 2) {
+            selectTool.selectedIndex += 1;
+          } else {
+            selectTool.selectedIndex = 0;
+          }
+          selectTool.oninput();
+          break;
+        default:
+          break;
+      }
     }
   }
 
