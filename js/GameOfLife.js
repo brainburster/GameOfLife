@@ -330,8 +330,42 @@ class GameOfLife {
     window.onkeydown = (e) => {
       switch (e.key) {
         case "z":
-          if (this.history.length > 1) {
+          if (this.history.length > 7) {
             this.data = this.history.pop();
+          }
+          break;
+        case "x":
+          this.pause = false;
+          this.update();
+          this.pause = true;
+          this.draw();
+          if (this.pause) {
+            pauseBtn.innerHTML = "点击，以开始";
+          } else {
+            pauseBtn.innerHTML = "暂停，以绘制地图";
+          }
+          break;
+        case "r":
+          for (let i = 0; i < this.data.w; i++) {
+            for (let j = 0; j < this.data.h; j++) {
+              let value = Math.random() > 0.33 ? 0 : 1;
+              this.data.setData(i, j, value);
+            }
+          }
+          this.dataOld = this.data.copy();
+          this.history.length = 0;
+          break;
+        case "c":
+          this.data.clear();
+          this.dataOld.clear();
+          this.history.length = 0;
+          break;
+        case " ":
+          this.pause = !this.pause;
+          if (this.pause) {
+            pauseBtn.innerHTML = "点击，以开始";
+          } else {
+            pauseBtn.innerHTML = "暂停，以绘制地图";
           }
           break;
         default:
@@ -340,16 +374,16 @@ class GameOfLife {
     }
 
     const undoBtn = document.createElement("button");
-    undoBtn.innerHTML = `撤销一次`;
+    undoBtn.innerHTML = `撤销(z)`;
     undoBtn.onclick = () => {
       if (this.pause) {
-        const tmp = this.data;
-        this.data = this.dataOld;
-        this.dataOld = tmp;
+        if (this.history.length > 7) {
+          this.data = this.history.pop();
+        }
       }
     }
-    document.getElementById("buttons").appendChild(undoBtn);
 
+    document.getElementById("buttons").appendChild(undoBtn);
 
     const pauseBtn = document.getElementById("pause");
     pauseBtn.innerHTML = "点击，以开始";
@@ -364,7 +398,7 @@ class GameOfLife {
 
 
     const debugBtn = document.createElement("button");
-    debugBtn.innerHTML = "单步调试";
+    debugBtn.innerHTML = "单步调试(x)";
     debugBtn.onclick = () => {
       this.pause = false;
       this.update();
@@ -385,7 +419,7 @@ class GameOfLife {
     }
 
     const randomBtn = document.createElement("button");
-    randomBtn.innerHTML = "随机汤";
+    randomBtn.innerHTML = "随机汤(r)";
     randomBtn.onclick = () => {
       for (let i = 0; i < this.data.w; i++) {
         for (let j = 0; j < this.data.h; j++) {
@@ -405,7 +439,7 @@ class GameOfLife {
     document.getElementById("buttons").appendChild(restartBtn);
 
     const clearBtn = document.createElement("button");
-    clearBtn.innerHTML = "清屏";
+    clearBtn.innerHTML = "清屏(c)";
     clearBtn.onclick = () => {
       this.data.clear();
       this.dataOld.clear();
@@ -501,21 +535,18 @@ class GameOfLife {
       }
     }
     //创建虚假而永恒的历史
-    this.history.push(this.data);
-    this.history.push(this.data);
-    this.history.push(this.data);
-    this.history.push(this.data);
-    this.history.push(this.data);
-    this.history.push(this.data);
-    this.history.push(this.data);
+    this.history.push(this.data.copy());
+    this.history.push(this.data.copy());
+    this.history.push(this.data.copy());
+    this.history.push(this.data.copy());
+    this.history.push(this.data.copy());
+    this.history.push(this.data.copy());
+    this.history.push(this.data.copy());
   }
 
   saveData() {
     this.dataOld = this.data.copy();
     this.history.push(this.dataOld);
-    if (this.history.length > 8) {
-      this.history.shift();
-    }
   }
 
   drawCell(x, y, color = "gray") {
@@ -604,7 +635,15 @@ class GameOfLife {
       for (let j = 0; j < this.data.h; j++) {
         if (this.data.getData(i, j)) {
           if (this.bHeatDeath) {
-            const count = this.history.reduce((a, b) => a + b.getData(i, j), 0);
+            //const count = this.history.reduceRight((a, b) => a + b.getData(i, j), 0);
+            let count = 0;
+            for (let k = 1; k < 8; k++) {
+              const h = this.history[this.history.length - k];
+              if (!h) {
+                break;
+              }
+              count += h.getData(i, j);
+            }
             this.drawCell(i, j, colors[count]);
           } else {
             this.drawCell(i, j, "gray");

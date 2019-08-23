@@ -130,7 +130,7 @@ void main(){
 }
 `
 
-const rect = {
+const square = {
   positions: new Float32Array([
     -1.0, -1.0,
     1.0, -1.0,
@@ -249,7 +249,7 @@ class GameOfLife {
         ]);
 
         gl.clear(gl.COLOR_BUFFER_BIT);
-        gl.drawElements(gl.TRIANGLES, rect.indices.length, gl.UNSIGNED_BYTE, 0);
+        gl.drawElements(gl.TRIANGLES, square.indices.length, gl.UNSIGNED_BYTE, 0);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         gl.bindTexture(gl.TEXTURE_2D, null);
         gl.bindBuffer
@@ -287,18 +287,18 @@ class GameOfLife {
     //this.ext.bindVertexArrayOES(this.vao);
     const posBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, rect.positions, gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, square.positions, gl.STATIC_DRAW);
     gl.vertexAttribPointer(this.locUpdatePos, 2, gl.FLOAT, false, 0, 0);
     gl.vertexAttribPointer(this.locRenderPos, 2, gl.FLOAT, false, 0, 0);
     gl.vertexAttribPointer(this.locBrushPos, 2, gl.FLOAT, false, 0, 0);
     const uvBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, rect.uvs, gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, square.uvs, gl.STATIC_DRAW);
     gl.vertexAttribPointer(this.locUpdateUv, 2, gl.FLOAT, false, 0, 0);
     gl.vertexAttribPointer(this.locRenderUv, 2, gl.FLOAT, false, 0, 0);
     const ebo = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, rect.indices, gl.STATIC_DRAW);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, square.indices, gl.STATIC_DRAW);
     gl.enableVertexAttribArray(this.locUpdatePos);
     gl.enableVertexAttribArray(this.locUpdateUv);
     gl.enableVertexAttribArray(this.locRenderPos);
@@ -396,7 +396,7 @@ class GameOfLife {
         0, 0, 1
       ]);
       //this.ext.bindVertexArrayOES(this.vao);
-      gl.drawElements(gl.TRIANGLES, rect.indices.length, gl.UNSIGNED_BYTE, 0);
+      gl.drawElements(gl.TRIANGLES, square.indices.length, gl.UNSIGNED_BYTE, 0);
       //
       const image = this.cvs.toDataURL("image/png");
       a.download = "存档.jpg";
@@ -476,7 +476,7 @@ class GameOfLife {
 
       gl.uniformMatrix3fv(this.locBrushM, false, mat);
       gl.uniform3fv(this.locBrushColor, colors[tool] || color);
-      gl.drawElements(gl.TRIANGLES, rect.indices.length, gl.UNSIGNED_BYTE, 0);
+      gl.drawElements(gl.TRIANGLES, square.indices.length, gl.UNSIGNED_BYTE, 0);
       gl.useProgram(null);
       gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
@@ -566,7 +566,7 @@ class GameOfLife {
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.textures.backTexture, 0);
 
     //this.ext.bindVertexArrayOES(this.vao);
-    gl.drawElements(gl.TRIANGLES, rect.indices.length, gl.UNSIGNED_BYTE, 0);
+    gl.drawElements(gl.TRIANGLES, square.indices.length, gl.UNSIGNED_BYTE, 0);
     // this.ext.bindVertexArrayOES(null);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.bindTexture(gl.TEXTURE_2D, null);
@@ -585,13 +585,13 @@ class GameOfLife {
     const y = this.y;
     const s = this.scale;
 
-    // let model = [
+    // const model = [
     //   1, 0, 0,
     //   0, 1, 0,
     //   0, 0, 1
     // ]
 
-    let view = [
+    const view = [
       s, 0, 0,
       0, s, 0,
       x, y, 1
@@ -607,7 +607,7 @@ class GameOfLife {
     gl.uniformMatrix3fv(this.locRenderM, false, mat);
 
     //this.ext.bindVertexArrayOES(this.vao);
-    gl.drawElements(gl.TRIANGLES, rect.indices.length, gl.UNSIGNED_BYTE, 0);
+    gl.drawElements(gl.TRIANGLES, square.indices.length, gl.UNSIGNED_BYTE, 0);
     //this.ext.bindVertexArrayOES(null);
   }
 
