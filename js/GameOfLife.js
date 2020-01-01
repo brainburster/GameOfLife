@@ -55,12 +55,12 @@ class Bitmap {
 //热寂效果
 const colors = ["#666", "#777", "#877", "#977", "#A66", "#B66", "#C77", "#D77", "#E88", "#F88"];
 colors.reverse();
-
+//不同设置对应的地图大小
 const cellSizes = [20, 10, 5, 3, 2, 1];
 const bitMapWs = [40, 80, 160, 266, 400, 800];
 const bitMapHs = [30, 60, 120, 200, 300, 600];
-
-const defaultMap = [
+//滑翔者枪
+const gliderGun = [
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
@@ -100,136 +100,189 @@ const defaultMap = [
   [0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
 ];
-
-const tools = {
-  "铅笔": {
-    onmousedown: (game, x, y, r) => {
-      for (let i = -r; i <= r; i++) {
-        for (let j = -r; j <= r; j++) {
-          game.data.setData(x + i, y + j, 1);
-        }
+const defaultMap = gliderGun;
+const tools = (function () {
+  const _tools = {};
+  //滑翔者
+  const glider = [
+    [0, 0, 1],
+    [1, 0, 1],
+    [0, 1, 1]
+  ];
+  //太空船
+  const spaceShip = [
+    [1, 0, 0, 1, 0],
+    [0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 1],
+    [0, 1, 1, 1, 1]
+  ];
+  //顺时针旋转90°，r次
+  const rotate90 = (obj, r) => {
+    if (r < 1) {
+      return obj;
+    }
+    //todo：添加缓存
+    const shape = [obj[0].length, obj.length];
+    const neuObj = new Array(shape[0]);
+    for (let i = 0; i < shape[0]; i++) {
+      neuObj[i] = new Array(shape[1]);
+      for (let j = 0; j < shape[1]; j++) {
+        neuObj[i][shape[1] - 1 - j] = obj[j][i];
       }
     }
-  },
-  "橡皮(右键)": {
-    onmousedown: (game, x, y, r) => {
-      for (let i = -r; i <= r; i++) {
-        for (let j = -r; j <= r; j++) {
-          game.data.setData(x + i, y + j, 0);
-        }
-      }
-    }
-  },
-  "飞行器": {
-    maps: [
-      [
-        [0, 0, 1],
-        [1, 0, 1],
-        [0, 1, 1],
-      ],
-      [
-        [0, 1, 0],
-        [1, 0, 0],
-        [1, 1, 1],
-      ],
-      [
-        [1, 1, 0],
-        [1, 0, 1],
-        [1, 0, 0],
-      ],
-      [
-        [1, 1, 1],
-        [0, 0, 1],
-        [0, 1, 0],
-      ],
-      [
-        [1, 0, 0, 1, 0],
-        [0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 1],
-        [0, 1, 1, 1, 1]
-      ]
-    ],
-    onclick: (game, x, y, r) => {
-      const map = tools["飞行器"].maps[r];
-      for (let j = 0; j < map.length; j++) {
-        for (let i = 0; i < map[j].length; i++) {
-          game.data.setData(x + i - (map[j].length >>> 1), y + j - (map.length >>> 1), map[j][i]);
-        }
-      }
-    }
-  },
-  "振荡器": {
-    maps: [
-      [
-        [0, 0, 0],
-        [1, 1, 1],
-        [0, 0, 0],
-      ],
-      [
-        [0, 0, 1, 1],
-        [0, 0, 0, 1],
-        [1, 0, 0, 0],
-        [1, 1, 0, 0],
-      ],
-      [
-        [0, 0, 0, 0],
-        [0, 1, 1, 1],
-        [1, 1, 1, 0],
-        [0, 0, 0, 0],
-      ],
-      // [
-      //   [0, 0, 0, 1, 1, 1, 0, 0, 0],
-      //   [0, 0, 1, 0, 0, 0, 1, 0, 0],
-      //   [0, 1, 0, 0, 0, 0, 0, 1, 0],
-      //   [0, 0, 0, 0, 0, 0, 0, 0, 0],
-      //   [1, 0, 0, 0, 0, 0, 0, 0, 1],
-      //   [1, 0, 0, 0, 0, 0, 0, 0, 1],
-      //   [0, 0, 0, 0, 0, 0, 0, 0, 0],
-      //   [0, 1, 0, 0, 0, 0, 0, 1, 0],
-      //   [0, 0, 1, 0, 0, 0, 1, 0, 0],
-      //   [0, 0, 0, 1, 1, 1, 0, 0, 0]
-      // ],
-      [
-        [1, 1, 1, 1, 1, 1, 1, 1, ],
-        [1, 0, 1, 1, 1, 1, 0, 1, ],
-        [1, 1, 1, 1, 1, 1, 1, 1, ]
-      ],
-      [
-        [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
-        [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
-        [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
-      ]
-    ],
-    onclick: (game, x, y, r) => {
-      const map = tools["振荡器"].maps[r];
-      for (let j = 0; j < map.length; j++) {
-        for (let i = 0; i < map[j].length; i++) {
-          game.data.setData(x + i - (map[j].length >>> 1), y + j - (map.length >>> 1), map[j][i]);
-        }
-      }
-    }
-  },
-  "滑翔者枪": {
-    onclick: (game, x, y, r) => {
-      const map = defaultMap;
-      for (let j = 0; j < map.length; j++) {
-        for (let i = 0; i < map[j].length; i++) {
-          game.data.setData(x + i - (map[j].length >>> 1), y + j - (map.length >>> 1), map[j][i]);
-        }
+    return rotate90(neuObj, r - 1);
+  };
+  //填充数据
+  const fill = (x, y, r, setData) => {
+    for (let i = -r; i <= r; i++) {
+      for (let j = -r; j <= r; j++) {
+        setData(x + i, y + j);
       }
     }
   }
-}
+  //粘贴图案
+  const pasteData = (x, y, w, h, setData) => {
+    for (let j = 0; j < w; j++) {
+      for (let i = 0; i < h; i++) {
+        setData(x + i, y + j, i, j);
+      }
+    }
+  }
+  //注册onmousedown函数
+  addOnMouseDown = (toolName, onMouseDown) => {
+    _tools[toolName] = _tools[toolName] || {};
+    _tools[toolName].onmousedown = onMouseDown;
+  }
+  addOnClick = (toolName, onMouseDown) => {
+    _tools[toolName] = _tools[toolName] || {};
+    _tools[toolName].onclick = onMouseDown;
+  }
+  //添加预制件
+  const addPastePrefab = (toolName, prefab) => {
+    addOnClick(toolName, (game, x, y, r) => {
+      const obj = rotate90(prefab, r)
+      pasteData(x, y, obj[0].length, obj.length, (x, y, i, j) => {
+        game.data.setData(x, y, obj[i][j]);
+      });
+    });
+  }
+  //铅笔和橡皮
+  addOnMouseDown("铅笔", (game, x, y, r) => {
+    fill(x, y, r, (x, y) => {
+      game.data.setData(x, y, 1);
+    });
+  });
+  addOnMouseDown("橡皮(右键)", (game, x, y, r) => {
+    fill(x, y, r, (x, y) => {
+      game.data.setData(x, y, 0);
+    });
+  });
+  //添加预制件
+  addPastePrefab("滑翔者", glider);
+  addPastePrefab("太空船", spaceShip);
+
+  return _tools;
+})();
+
+// {
+//   "飞行器": {
+//     maps: [
+//       [
+//         [0, 0, 1],
+//         [1, 0, 1],
+//         [0, 1, 1],
+//       ],
+//       [
+//         [0, 1, 0],
+//         [1, 0, 0],
+//         [1, 1, 1],
+//       ],
+//       [
+//         [1, 1, 0],
+//         [1, 0, 1],
+//         [1, 0, 0],
+//       ],
+//       [
+//         [1, 1, 1],
+//         [0, 0, 1],
+//         [0, 1, 0],
+//       ],
+//       [
+//         [1, 0, 0, 1, 0],
+//         [0, 0, 0, 0, 1],
+//         [1, 0, 0, 0, 1],
+//         [0, 1, 1, 1, 1]
+//       ]
+//     ],
+//     onclick: (game, x, y, r) => {
+//       const map = tools["飞行器"].maps[r];
+//       for (let j = 0; j < map.length; j++) {
+//         for (let i = 0; i < map[j].length; i++) {
+//           game.data.setData(x + i - (map[j].length >>> 1), y + j - (map.length >>> 1), map[j][i]);
+//         }
+//       }
+//     }
+//   },
+//   "振荡器": {
+//     maps: [
+//       [
+//         [0, 0, 0],
+//         [1, 1, 1],
+//         [0, 0, 0],
+//       ],
+//       [
+//         [0, 0, 1, 1],
+//         [0, 0, 0, 1],
+//         [1, 0, 0, 0],
+//         [1, 1, 0, 0],
+//       ],
+//       [
+//         [0, 0, 0, 0],
+//         [0, 1, 1, 1],
+//         [1, 1, 1, 0],
+//         [0, 0, 0, 0],
+//       ],
+//       [
+//         [1, 1, 1, 1, 1, 1, 1, 1, ],
+//         [1, 0, 1, 1, 1, 1, 0, 1, ],
+//         [1, 1, 1, 1, 1, 1, 1, 1, ]
+//       ],
+//       [
+//         [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
+//         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+//         [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+//         [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+//         [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+//         [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
+//         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+//         [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
+//         [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+//         [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+//         [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+//         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+//         [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
+//       ]
+//     ],
+//     onclick: (game, x, y, r) => {
+//       const map = tools["振荡器"].maps[r];
+//       for (let j = 0; j < map.length; j++) {
+//         for (let i = 0; i < map[j].length; i++) {
+//           game.data.setData(x + i - (map[j].length >>> 1), y + j - (map.length >>> 1), map[j][i]);
+//         }
+//       }
+//     }
+//   },
+//   "滑翔者枪": {
+//     onclick: (game, x, y, r) => {
+//       const map = defaultMap;
+//       for (let j = 0; j < map.length; j++) {
+//         for (let i = 0; i < map[j].length; i++) {
+//           game.data.setData(x + i - (map[j].length >>> 1), y + j - (map.length >>> 1), map[j][i]);
+//         }
+//       }
+//     }
+//   }
+// }
 
 class GameOfLife {
   constructor() {
