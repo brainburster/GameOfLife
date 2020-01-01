@@ -1,4 +1,4 @@
-const vsUpdate = `
+const vsUpdate = glsl `
 precision mediump float;
 
 attribute vec2 position;
@@ -10,7 +10,7 @@ void main(){
   uv=texCoord;
 }
 `
-const fsUpdate = `
+const fsUpdate = glsl `
 precision mediump float;
 
 varying vec2 uv;
@@ -75,7 +75,7 @@ void main(){
 }
 `
 
-const vsRender = `
+const vsRender = glsl `
 precision mediump float;
 
 attribute vec2 position;
@@ -91,7 +91,7 @@ void main(){
 }
 `
 
-const fsRender = `
+const fsRender = glsl `
 precision mediump float;
 
 varying vec2 uv;
@@ -110,7 +110,7 @@ void main(){
 }
 `
 
-const vsBrush = `
+const vsBrush = glsl `
 precision mediump float;
 
 attribute vec2 position;
@@ -582,13 +582,7 @@ class GameOfLife {
     this.gl.clearColor(0.1, 0.1, 0.1, 1);
     this.gl.disable(this.gl.DEPTH_TEST);
   }
-
-  handleInput() {
-    //todo: 将处理输入全部放到游戏循环中
-  }
-
   update() {
-    //
     if (this.pause) {
       return;
     }
