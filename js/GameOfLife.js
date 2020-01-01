@@ -116,6 +116,48 @@ const tools = (function () {
     [1, 0, 0, 0, 1],
     [0, 1, 1, 1, 1]
   ];
+  //信号灯
+  const blinker = [
+    [1, 1, 1]
+  ];
+
+  //信标
+  const beacon = [
+    [0, 0, 1, 1],
+    [0, 0, 0, 1],
+    [1, 0, 0, 0],
+    [1, 1, 0, 0],
+  ];
+  //蛤
+  const toad = [
+    [0, 0, 0, 0],
+    [0, 1, 1, 1],
+    [1, 1, 1, 0],
+    [0, 0, 0, 0],
+  ];
+  //十五项全能
+  const pentadecathlon = [
+    [1, 1, 1, 1, 1, 1, 1, 1, ],
+    [1, 0, 1, 1, 1, 1, 0, 1, ],
+    [1, 1, 1, 1, 1, 1, 1, 1, ]
+  ];
+  //脉冲星
+  const CP_pulsar = [
+    [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+    [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
+    [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
+  ];
+
   //顺时针旋转90°，r次
   const rotate90 = (obj, r) => {
     if (r < 1) {
@@ -180,109 +222,15 @@ const tools = (function () {
   //添加预制件
   addPastePrefab("滑翔者", glider);
   addPastePrefab("太空船", spaceShip);
+  addPastePrefab("信号灯", blinker);
+  addPastePrefab("信标", beacon);
+  addPastePrefab("蛤", toad);
+  addPastePrefab("十五项全能", pentadecathlon);
+  addPastePrefab("脉冲星", CP_pulsar);
+  addPastePrefab("滑翔者枪", gliderGun);
 
   return _tools;
 })();
-
-// {
-//   "飞行器": {
-//     maps: [
-//       [
-//         [0, 0, 1],
-//         [1, 0, 1],
-//         [0, 1, 1],
-//       ],
-//       [
-//         [0, 1, 0],
-//         [1, 0, 0],
-//         [1, 1, 1],
-//       ],
-//       [
-//         [1, 1, 0],
-//         [1, 0, 1],
-//         [1, 0, 0],
-//       ],
-//       [
-//         [1, 1, 1],
-//         [0, 0, 1],
-//         [0, 1, 0],
-//       ],
-//       [
-//         [1, 0, 0, 1, 0],
-//         [0, 0, 0, 0, 1],
-//         [1, 0, 0, 0, 1],
-//         [0, 1, 1, 1, 1]
-//       ]
-//     ],
-//     onclick: (game, x, y, r) => {
-//       const map = tools["飞行器"].maps[r];
-//       for (let j = 0; j < map.length; j++) {
-//         for (let i = 0; i < map[j].length; i++) {
-//           game.data.setData(x + i - (map[j].length >>> 1), y + j - (map.length >>> 1), map[j][i]);
-//         }
-//       }
-//     }
-//   },
-//   "振荡器": {
-//     maps: [
-//       [
-//         [0, 0, 0],
-//         [1, 1, 1],
-//         [0, 0, 0],
-//       ],
-//       [
-//         [0, 0, 1, 1],
-//         [0, 0, 0, 1],
-//         [1, 0, 0, 0],
-//         [1, 1, 0, 0],
-//       ],
-//       [
-//         [0, 0, 0, 0],
-//         [0, 1, 1, 1],
-//         [1, 1, 1, 0],
-//         [0, 0, 0, 0],
-//       ],
-//       [
-//         [1, 1, 1, 1, 1, 1, 1, 1, ],
-//         [1, 0, 1, 1, 1, 1, 0, 1, ],
-//         [1, 1, 1, 1, 1, 1, 1, 1, ]
-//       ],
-//       [
-//         [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
-//         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//         [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
-//         [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
-//         [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
-//         [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
-//         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//         [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
-//         [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
-//         [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
-//         [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
-//         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-//         [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
-//       ]
-//     ],
-//     onclick: (game, x, y, r) => {
-//       const map = tools["振荡器"].maps[r];
-//       for (let j = 0; j < map.length; j++) {
-//         for (let i = 0; i < map[j].length; i++) {
-//           game.data.setData(x + i - (map[j].length >>> 1), y + j - (map.length >>> 1), map[j][i]);
-//         }
-//       }
-//     }
-//   },
-//   "滑翔者枪": {
-//     onclick: (game, x, y, r) => {
-//       const map = defaultMap;
-//       for (let j = 0; j < map.length; j++) {
-//         for (let i = 0; i < map[j].length; i++) {
-//           game.data.setData(x + i - (map[j].length >>> 1), y + j - (map.length >>> 1), map[j][i]);
-//         }
-//       }
-//     }
-//   }
-// }
 
 class GameOfLife {
   constructor() {
@@ -330,12 +278,6 @@ class GameOfLife {
     this.canvas.oncontextmenu = (e) => {
       e.preventDefault();
     }
-
-    // this.canvas.onclick = (e) => {
-    //   const x = Math.floor(e.offsetX / this.cellSize);
-    //   const y = Math.floor(e.offsetY / this.cellSize);
-    //   tools[selectTool.value].onclick && tools[selectTool.value].onclick(this, x, y, brushSizeRange.valueAsNumber >>> 1);
-    // }
 
     this.canvas.onmousedown = (e) => {
       const x = Math.floor(e.offsetX / this.cellSize);
@@ -578,7 +520,6 @@ class GameOfLife {
         this.data.setData(i, j, map[i][j]);
       }
     }
-    //创建虚假而永恒的历史
     this.history.push(this.data.copy());
     this.history.push(this.data.copy());
     this.history.push(this.data.copy());
