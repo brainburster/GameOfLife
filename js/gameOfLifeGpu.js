@@ -1,4 +1,4 @@
-const vsUpdate = glsl `
+const vsUpdate = `
 precision mediump float;
 
 attribute vec2 position;
@@ -10,7 +10,7 @@ void main(){
   uv=texCoord;
 }
 `
-const fsUpdate = glsl `
+const fsUpdate = `
 precision mediump float;
 
 varying vec2 uv;
@@ -75,7 +75,7 @@ void main(){
 }
 `
 
-const vsRender = glsl `
+const vsRender = `
 precision mediump float;
 
 attribute vec2 position;
@@ -91,7 +91,7 @@ void main(){
 }
 `
 
-const fsRender = glsl `
+const fsRender = `
 precision mediump float;
 
 varying vec2 uv;
@@ -110,7 +110,7 @@ void main(){
 }
 `
 
-const vsBrush = glsl `
+const vsBrush = `
 precision mediump float;
 
 attribute vec2 position;
@@ -190,7 +190,6 @@ function m3Cross(a, b) {
 }
 
 class GameOfLife {
-  //懒得搞调整大小的功能了，但是还是要写上
   constructor(w, h, cvsW = 800, cvsH = 600) {
     this.delay = 32; //ms
     this.heatDeath = true;
@@ -650,7 +649,6 @@ class GameOfLife {
       previous = current;
       lag += elapsed;
       if (lag < 400) {
-        this.handleInput();
         while (lag >= this.delay) {
           this.update();
           lag -= this.delay;
