@@ -158,12 +158,15 @@ const tools = (function () {
     [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
   ];
 
-  //顺时针旋转90°，r次
+  //逆时针旋转90°，r次
   const rotate90 = (obj, r) => {
     if (r < 1) {
       return obj;
     }
-    //todo：添加缓存
+    if (r > 3) {
+      r %= 4;
+    }
+
     const shape = [obj[0].length, obj.length];
     const neuObj = new Array(shape[0]);
     for (let i = 0; i < shape[0]; i++) {
