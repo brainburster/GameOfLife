@@ -52,14 +52,14 @@
       const txtS = document.getElementById("s");
 
       buttonDefault.addEventListener("click", () => {
-        txtB.value = 3;
-        txtS.value = 23;
+        txtB.value = '3';
+        txtS.value = '23';
         txtB.onchange();
         txtS.onchange();
       })
 
       const selectTool = document.getElementById("tool");
-      const toolNames = ["铅笔", "橡皮(右键)", "滑翔者", "太空船", "信号灯", "信标", "蛤", "十五项全能", "脉冲星", "滑翔者枪"];
+      const toolNames = Object.keys(tools);
       for (let i = 0; i < toolNames.length; i++) {
         const toolName = toolNames[i];
         const optionTool = document.createElement("option");
