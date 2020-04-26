@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="icon.png" type="image/x-icon">
+    <title>基于细胞自动机的流体模拟</title>
+</head>
+
+<body style="text-align: center;">
+    <h2>左键水，右键墙，中键橡皮</h2>
+    <script>
+        const cell_size = 10;
+        const canvas_w = 800;
+        const canvas_h = 600;
+        const w = Math.floor(canvas_w / cell_size);
+        const h = Math.floor(canvas_h / cell_size);
+
+        const 墙 = -1;
+        const 空 = 0;
+        const 水 = 1;
+
+        const rules = (function () {
+            const all_rules = new Map();
+            /**
+             * 添加规则
+             * @param {number[][]|number[]} froms 
+             * @param {number[]} to 
+             */
+            const add_rule = (froms, to) => {
+                if (typeof (froms[0]) == 'number') {
+                    all_rules.set(froms.toString(), to);
+                    return;
+                }
+                froms.forEach((from) => {
+                    all_rules.set(from.toString(), to);
+                });
+            }
+            add_rule(
+                [
+                    墙, 水,
+                    墙, 空
+                ], [
+                墙, 空,
+                墙, 水
+            ]
+            );
+            add_rule(
+                [
+                    水, 墙,
+                    空, 墙
+                ], [
+                空, 墙,
+                水, 墙
+            ]
+            );
+            add_rule(
+                [
+                    [
+                        空, 水,
+                        空, 空
+                    ],
+                    [
+                        空, 空,
+                        水, 空
+                    ]
+                ], [
+                空, 空,
+                空, 水
+            ]
+            );
+            add_rule(
+                [
+                    [
+                        水, 空,
+                        空, 空
+                    ],
+                    [
+                        空, 空,
+                        空, 水
+                    ]
+                ], [
+                空, 空,
+                水, 空
+            ]
+            );
+            add_rule(
+                [
+                    [
+                        水, 空,
+                        空, 水
+                    ],
+                    [
+                        空, 水,
+                        水, 空
+                    ],
+                    [
+                        空, 水,
+                        空, 水
+                    ],
+                    [
+                        水, 空,
+                        水, 空
+                    ]
+                ], [
+                空, 空,
+                水, 水
+            ]
+            );
+
+            add_rule(
+                [
+                    [
+                        空, 水,
+                        水, 水
+                    ],
+                    [
+                        水, 水,
+                        空, 水
+                    ]
+                ], [
+                水, 空,
+                水, 水
+            ]
+            );
+            add_rule(
+                [
+                    [
+                        水, 空,
+                        水, 水
+                    ],
+                    [
+                        水, 水,
+                        水, 空
+                    ]
+                ], [
+                空, 水,
+                水, 水
+            ]
+            );
+
+            add_rule(
+                [
+                    空, 水,
+                    墙, 墙
+                ],
+                [
+                    水, 空,
+                    墙, 墙
+                ]
+            );
+            add_rule(
+                [
+                    水, 空,
+                    墙, 墙
+                ],
+                [
+                    空, 水,
+                    墙, 墙
+                ]
+            );
+            add_rule(
+                [
+                    [
+                        水, 空,
+                        空, 墙
+                    ],
+                    [
+                        空, 水,
+                        空, 墙
+                    ]
+                ],
+                [
+                    空, 空,
+                    水, 墙
+                ]
+            );
+            add_rule(
+                [
+                    [
+                        水, 空,
+                        墙, 空
+                    ],
+                    [
+                        空, 水,
+                        墙, 空
+                    ]
+                ],
+                [
+                    空, 空,
+                    墙, 水
+                ]
+            );
+            add_rule(
+                [
+                    [
+                        水, 墙,
+                        空, 空
+                    ],
+                    [
+                        空, 墙,
+                        空, 水
+                    ]
+                ],
+                [
+                    空, 墙,
+                    水, 空
+                ]
+            );
+            add_rule(
+                [
+                    [
+                        墙, 水,
+                        空, 空
+                    ],
+                    [
+                        墙, 空,
+                        水, 空
+                    ]
+                ],
+                [
+                    墙, 空,
+                    空, 水
+                ]
+            );
+            add_rule(
+                [
+                    [
+                        水, 水,
+                        墙, 空
+                    ]
+                ],
+                [
+                    水, 空,
+                    墙, 水
+                ]
+            );
+            add_rule(
+                [
+                    [
+                        水, 水,
+                        空, 墙
+                    ]
+                ],
+                [
+                    空, 水,
+                    水, 墙
+                ]
+            );
+            add_rule([
+                水, 水,
+                空, 空
+            ],
+                [
+                    空, 水,
+                    水, 空
+                ])
+            add_rule(
+                [
+                    墙, 墙,
+                    空, 水
+                ],
+                [
+                    墙, 墙,
+                    水, 空
+                ]);
+            add_rule(
+                [
+                    墙, 墙,
+                    水, 空
+                ],
+                [
+                    墙, 墙,
+                    空, 水
+                ]);
+            add_rule(
+                [
+                    墙, 空,
+                    水, 空
+                ],
+                [
+                    墙, 空,
+                    空, 水
+                ]);
+            add_rule(
+                [
+                    墙, 空,
+                    空, 水
+                ],
+                [
+                    墙, 空,
+                    水, 空
+                ]);
+            add_rule(
+                [
+                    空, 墙,
+                    空, 水
+                ],
+                [
+                    空, 墙,
+                    水, 空
+                ]);
+            add_rule(
+                [
+                    空, 墙,
+                    水, 空
+                ],
+                [
+                    空, 墙,
+                    空, 水
+                ]);
+            add_rule(
+                [
+                    空, 水,
+                    空, 墙
+                ],
+                [
+                    空, 空,
+                    水, 墙
+                ]);
+            add_rule(
+                [
+                    水, 空,
+                    墙, 空
+                ],
+                [
+                    空, 空,
+                    墙, 水
+                ]);
+            add_rule(
+                [
+                    空, 水,
+                    墙, 水
+                ],
+                [
+                    水, 空,
+                    墙, 水
+                ]);
+            add_rule(
+                [
+                    水, 空,
+                    墙, 水
+                ],
+                [
+                    空, 水,
+                    墙, 水
+                ]);
+            add_rule(
+                [
+                    水, 空,
+                    水, 墙
+                ],
+                [
+                    空, 水,
+                    水, 墙
+                ]);
+            add_rule(
+                [
+                    空, 水,
+                    水, 墙
+                ],
+                [
+                    水, 空,
+                    水, 墙
+                ]);
+            return all_rules;
+        })()
+
+
+        const fall_water_impl = function (_1, _2, _3, _4) {
+            const rule = rules.get([_1, _2, _3, _4].toString());
+            if (rule === undefined) {
+                return [_1, _2, _3, _4];
+            }
+            return rule;
+        }
+
+        class Matrix2D {
+            constructor(w, h) {
+                this.w = w;
+                this.h = h;
+                this.data = new Array(w * h);
+                this.data.fill(0, 0);
+                this.parity = 0;
+            }
+            get(x, y) {
+                if (x < 0 || x >= this.w || y < 0 || y >= this.h) {
+                    return -1;
+                }
+                return this.data[y * this.w + x];
+            }
+            set(x, y, v) {
+                if (x < 0 || x >= this.w || y < 0 || y >= this.h) {
+                    return false;
+                }
+                this.data[y * this.w + x] = v;
+                return true;
+            }
+            //使用Margolus邻居
+            forEachMargolusUnitBlock(transform_unit_block) {
+                for (let i = this.parity; i < this.w; i += 2) {
+                    for (let j = this.parity; j < this.h; j += 2) {
+                        const _1 = this.get(i, j);
+                        const _2 = this.get(i + 1, j);
+                        const _3 = this.get(i, j + 1);
+                        const _4 = this.get(i + 1, j + 1);
+
+                        const [__1, __2, __3, __4] = transform_unit_block(_1, _2, _3, _4);
+
+                        this.set(i, j, __1)
+                        this.set(i + 1, j, __2)
+                        this.set(i, j + 1, __3)
+                        this.set(i + 1, j + 1, __4);
+                    }
+                }
+                this.parity = ((this.parity === 0) ? -1 : 0);
+            }
+        }
+
+        class CAWater {
+            constructor() {
+                this.delay = 5;
+                this.canvas = document.createElement("canvas");
+                this.canvas.width = canvas_w;
+                this.canvas.height = canvas_h;
+                this.context = this.canvas.getContext("2d");
+                this.context.fillStyle = "gray";
+                this.context.strokeStyle = "black";
+                this.canvas.oncontextmenu = (e) => {
+                    return false;
+                };
+                document.onmousedown = (e)=>{
+                    e.preventDefault()
+                }
+                this.canvas.onmousedown = this.canvas.onmousemove = (e) => {
+                    const x = Math.floor(e.offsetX / cell_size);
+                    const y = Math.floor(e.offsetY / cell_size);
+                    if (e.buttons === 1) {
+                        this.map.get(x, y)||this.map.set(x, y, 1);
+                        this.map.get(x - 1, y)||this.map.set(x - 1, y, 1);
+                        this.map.get(x + 1, y)||this.map.set(x + 1, y, 1);
+                        this.map.get(x - 1, y + 1)||this.map.set(x - 1, y + 1, 1);
+                        this.map.get(x + 1, y + 1)||this.map.set(x + 1, y + 1, 1);
+                        this.map.get(x - 1, y - 1)||this.map.set(x - 1, y - 1, 1);
+                        this.map.get(x + 1, y - 1)||this.map.set(x + 1, y - 1, 1);
+                    }
+                    else if (e.buttons === 2) {
+                        this.map.set(x, y, -1);
+                    }
+                    else if (e.buttons === 4) {
+                        this.map.set(x, y, 0);
+                    }
+                }
+                this.map = new Matrix2D(w, h);
+                this.map.set(29, 29, -1);
+                this.map.set(49, 29, -1);
+                for (let x = 29; x < 50; x++) {
+                    this.map.set(x, 30, -1);
+                }
+            }
+
+            getCanvas() {
+                return this.canvas;
+            }
+
+            drawCell(x, y, color = "blue") {
+                this.context.fillStyle = color;
+                this.context.fillRect(x * cell_size, y * cell_size, cell_size, cell_size);
+                //this.context.strokeStyle = "gray"
+                //this.context.strokeRect(x * cell_size, y * cell_size, cell_size, cell_size);
+            }
+
+            update() {
+                if (this.pause) {
+                    return;
+                }
+
+                this.map.forEachMargolusUnitBlock(fall_water_impl);
+            }
+
+            draw() {
+                this.context.fillStyle = "gray";
+                this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                for (let i = 0; i < w; i++) {
+                    for (let j = 0; j < h; j++) {
+                        const cell = this.map.get(i, j);
+                        if (cell === 1) {
+                            this.drawCell(i, j, "lightblue");
+                        } else if (cell === -1) {
+                            this.drawCell(i, j, "black");
+                        }
+                    }
+                }
+            }
+
+            run() {
+                let previous = (new Date()).getTime();
+                let lag = 0.0;
+
+                const gameloop = () => {
+                    const current = (new Date()).getTime();
+                    const elapsed = current - previous;
+                    previous = current;
+                    lag += elapsed;
+                    if (lag < 500) {
+                        while (lag >= this.delay) {
+                            this.update();
+                            lag -= this.delay;
+                        }
+                        this.draw();
+                    } else {
+                        lag = 0;
+                    }
+
+                    requestAnimationFrame(gameloop);
+                };
+
+                gameloop();
+            }
+        }
+
+        const game = new CAWater()
+        document.body.appendChild(game.getCanvas())
+        game.run();
+    </script>
+</body>
+
+</html>
